@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>University Recommendation Application</title>
+
+    <!-- Updated Bootstrap 5.3 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+    <style>
+        /* Custom Styling */
+        body {
+            background-color: #f8f9fa;
+        }
+        .navbar-brand {
+            font-size: 1.5rem;
+        }
+        .card {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        .table th, .table td {
+            text-align: center;
+        }
+        .footer {
+            text-align: center;
+            padding: 1rem;
+            background: #343a40;
+            color: white;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" href="#">Graduate Recommendations</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" href="/">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/undergraduate">Undergraduate College</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/graduate">Graduate College</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<div class="container mt-4">
+    <div class="card">
+        <h1 class="mb-3 text-center">University Recommendation System</h1>
+        <p class="lead text-center">The top recommended universities based on your GRE score and GPA:</p>
+
+        <!-- Recommendations Table -->
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered">
+                <thead class="table-dark">
+                    <tr>
+                        <th>S.No</th>
+                        <th>University</th>
+                        <th>student__score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for university, student__score in results %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ university }}</td>
+                            <td>{{ student__score }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="3">No recommendations available</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+    <p>&copy; 2025 University Recommendation System. All rights reserved.</p>
+</footer>
+
+<!-- Bootstrap JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

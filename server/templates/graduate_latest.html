@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Multi-Stage University Recommendation Form</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body { background-color: #f8f9fa; }
+        .progress { height: 10px; }
+        .jumbotron { background: #fff; padding: 2rem; border-radius: 10px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); }
+        .footer { text-align: center; padding: 1rem; background: #343a40; color: white; margin-top: 20px; }
+        .form-step { display: none; }
+        .form-step.active { display: block; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" href="/main">University Recommendation</a>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="progress mb-3">
+        <div id="progressBar" class="progress-bar bg-primary" style="width: 0%;"></div>
+    </div>
+
+    <div class="jumbotron">
+        <h1 class="mb-3">Graduate Universities</h1>
+        <form id="recommendationForm">
+            
+            <!-- Step 1 -->
+            <div class="form-step active" id="step1">
+                <h4>Step 1: Work Experience</h4>
+                <label for="workEx">Years of Work Ex</label>
+                <input type="number" id="workEx" name="workEx" class="form-control" required>
+                <label for="Desg" class="form-label">Designation</label>
+                <input type="text" id="Desg" name="Desg" class="form-control" required>
+                <label for="comTy" class="form-label">Company Type</label>
+                <input type="text" id="comTy" name="comTy" class="form-control" required>
+                <label for="annScale" class="form-label">Annual Scale of Business</label>
+                <input type="text" id="annScale" name="annScale" class="form-control" required>
+                <button type="button" class="btn btn-primary mt-3 next">Next</button>
+            </div>
+            
+            <!-- Step 2 -->
+            <div class="form-step" id="step2">
+                <h4>Step 2: Education</h4>
+                <label for="cgpa">CGPA</label>
+                <input type="number" step="0.1" id="cgpa" name="cgpa" class="form-control" required>
+                <label for="colRnk" class="form-label">College/Institute Ranking</label>
+                <input type="text" id="colRnk" name="colRnk" class="form-control" required>
+                <label for="coRe" class="form-label">Course Relevance</label>
+                <input type="text" id="coRe" name="coRe" class="form-control" required>
+                <button type="button" class="btn btn-secondary mt-3 prev">Back</button>
+                <button type="button" class="btn btn-primary mt-3 next">Next</button>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="form-step" id="step3">
+                <h4>Step 3: Score Details</h4>
+                <label for="gmat">GMAT Score</label>
+                <input type="number" id="gmat" name="gmat" class="form-control" required>
+                <label for="ielts">IELTS Score</label>
+                <input type="number" step="0.1" id="ielts" name="ielts" class="form-control" required>
+                <button type="button" class="btn btn-secondary mt-3 prev">Back</button>
+                <button type="button" class="btn btn-primary mt-3 next">Next</button>
+            </div>
+            
+            <!-- Step 4 -->
+            <div class="form-step" id="step4">
+                <h4>Step 4: Additional Details</h4>
+                <label for="ngo" class="form-label">NGO</label>
+                <input type="text" id="ngo" name="ngo" class="form-control" required>
+                <button type="button" class="btn btn-secondary mt-3 prev">Back</button>
+                <button type="submit" class="btn btn-success mt-3">Submit</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<footer class="footer">
+    <p>&copy; 2025 University Recommendation System. All rights reserved.</p>
+</footer>
+
+<script>
+    const steps = document.querySelectorAll(".form-step");
+    const progressBar = document.getElementById("progressBar");
+    let currentStep = 0;
+
+    function updateForm() {
+        steps.forEach((step, index) => {
+            step.classList.toggle("active", index === currentStep);
+        });
+        progressBar.style.width = `${(currentStep / (steps.length - 1)) * 100}%`;
+    }
+
+    // Handle next button click
+    document.querySelectorAll(".next").forEach(button => {
+        button.addEventListener("click", () => {
+            if (currentStep < steps.length - 1) {
+                currentStep++;
+                updateForm();
+            }
+        });
+    });
+
+    // Handle previous button click
+    document.querySelectorAll(".prev").forEach(button => {
+        button.addEventListener("click", () => {
+            if (currentStep > 0) {
+                currentStep--;
+                updateForm();
+            }
+        });
+    });
+
+    // Handle form submission
+    document.getElementById("recommendationForm").addEventListener("submit", function(event) {
+    let valid = true;
+    const fields = ["workEx", "Desg", "comTy", "annScale", "ngo", "gmat", "cgpa", "ielts", "colRnk", "coRe"];
+
+    fields.forEach(field => {
+        const input = document.getElementById(field);
+        let errorDiv = document.getElementById(`error${field}`);
+        
+        if (!errorDiv) {
+            errorDiv = document.createElement("div");
+            errorDiv.id = `error${field}`;
+            errorDiv.className = "text-danger";
+            input.parentNode.appendChild(errorDiv);
+        }
+
+        errorDiv.textContent = "";
+
+        if (!input.value.trim()) {
+            errorDiv.textContent = "This field is required.";
+            valid = false;
+        }
+    });
+
+    if (!valid) {
+        event.preventDefault();
+    } else {
+        alert("Form submitted successfully!"); // Simulate form submission
+    }
+});
+
+
+    // Initialize form
+    updateForm();
+</script>
+
+</body>
+</html>

@@ -2,8 +2,10 @@ import csv
 import urllib.request
 import random
 import heapq
-from flask import Flask, render_template, escape, request, redirect
+from flask import Flask, render_template, request, redirect
+from markupsafe import escape
 import pandas as pd
+import ssl
 
 from enum import Enum
 
@@ -73,25 +75,26 @@ def processInput() :
   return UserProfile(input2, input3)
 
 def UniversityRank():
-  url = "http://www.4icu.org/us/"
-  handle = urllib.request.urlopen(url)
-  html =  handle.read()
-  html=html.decode("utf8")
-  result ={}
-  location =0
-  rank =0
-  while True:
-    try:
-      location1 = html.index('.htm">', location)
-      print(location1)
-      location2 =html.index('</a>', location1)
-      print(location2)
-      result[html[(location1 + len('.htm">')): location2]] =rank
-      rank =rank +1
-      location =location2 +1
-    except Exception as ex:
-      break
-  return result
+    url = "https://www.4icu.org/us/"  # Use HTTPS
+    context = ssl._create_unverified_context()  # Bypass SSL verification
+    handle = urllib.request.urlopen(url, context=context)  
+    html = handle.read().decode("utf8")
+
+    result = {}
+    location = 0
+    rank = 0
+
+    while True:
+        try:
+            location1 = html.index('.htm">', location)
+            location2 = html.index('</a>', location1)
+            result[html[(location1 + len('.htm">')): location2]] = rank
+            rank += 1
+            location = location2 + 1
+        except Exception:
+            break
+
+    return result
 
 def ProcessFinalData(user_data, college_rank):
    size =len(user_data['INSTNM'])

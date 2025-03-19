@@ -1,217 +1,193 @@
 import random
-from flask import Flask, render_template, escape, request, redirect
-import pandas as pd
+import requests
 import numpy as np
-import csv
-import math
-from sklearn import neighbors, datasets
-from numpy.random import permutation
-from sklearn.metrics import precision_recall_fscore_support
-import UnderGraduateServer
-app = Flask(__name__, static_folder='../static/dist', template_folder='../static')
+import pandas as pd
+from django.shortcuts import render
+from django.http import HttpResponse
+from django.urls import path
+from django.conf import settings
+from django.core.wsgi import get_wsgi_application
+import os
+import string
+from student_input import year_of_exp, designation, company_type, annual_scale_of_business, ngo, gmat_score, cgpa_score, ielts, college_ranking, course_relevance
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+# Elasticsearch Configuration
+ES_HOST = "http://127.0.0.1:9200"
+ES_INDEX = "business_schools"
 
-@app.route('/graduate')
-def graduate():
-    return render_template('graduate.html')
+# Generate a random SECRET_KEY if not set
+def generate_secret_key():
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=50))
 
-@app.route("/main")
-def return_main():
-    return render_template('index.html')
+# Django settings
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "myproject.settings")
+settings.configure(
+    DEBUG=True,
+    SECRET_KEY=os.getenv("DJANGO_SECRET_KEY", generate_secret_key()),
+    ROOT_URLCONF=__name__,
+    ALLOWED_HOSTS=['*'],
+    TEMPLATES=[{'BACKEND': 'django.template.backends.django.DjangoTemplates', 'DIRS': ['templates'], 'APP_DIRS': True}],
+)
+application = get_wsgi_application()
 
-@app.route('/undergraduate')
-def undergraduate():
-    return render_template('undergraduate.html')
+# Views
+def index(request):
+    return render(request, 'index.html')
 
-def euclidean_dist(test, train, length):
-    distance = 0
-    for x in range(length):
-        distance += np.square(test[x] - train[x])
-    return np.sqrt(distance)
+def graduate(request):
+    return render(request, 'graduate.html')
 
+def undergraduate(request):
+    return render(request, 'undergraduate.html')
+
+# Function to assign scores for categorical variables
+def category_score(value):
+    category_mapping = {
+        "low": 1, "medium": 2, "high": 3, 
+        "junior": 1, "mid": 2, "senior": 3
+    }
+    return category_mapping.get(value.lower(), 0) if isinstance(value, str) else 0
+
+# Helper function to fetch data from Elasticsearch
+def fetch_data_from_elasticsearch():
+    url = f"{ES_HOST}/{ES_INDEX}/_search"
+    headers = {"Content-Type": "application/json"}
+    query = {"size": 10000, "query": {"match_all": {}}}
+    response = requests.get(url, headers=headers, json=query)
+
+    if response.status_code == 200:
+        records = [hit["_source"] for hit in response.json()["hits"]["hits"]]
+        return pd.DataFrame(records)
+    else:
+        print("Error fetching data:", response.json())  # Log error for debugging
+        return pd.DataFrame()
+
+# Function to safely convert request values to float
+def get_float(value, default=0):
+    try:
+        return float(value)
+    except (ValueError, TypeError):
+        return default
+
+# Function to handle categorical data
+def get_category(value):
+    return category_score(value) if value else 0  # Ensure 0 is returned for missing values
+
+# Function to create a DataFrame from request parameters
+def create_student_score(request):
+    print(designation(request.GET.get("Desg", "")))
+    print(year_of_exp(get_float(request.GET.get("workEx", 0))))
+    print(company_type(request.GET.get("comTy", "")))
+    print(annual_scale_of_business(request.GET.get("annScale", "")))
+    print(ngo(request.GET.get("ngo", "")))
+    print(gmat_score(get_float(request.GET.get("gmat", 0))))
+    print(cgpa_score(get_float(request.GET.get("cgpa", 0))))
+    print(ielts(get_float(request.GET.get("ielts", 0))) )
+    print(college_ranking(request.GET.get("colRnk", "")))
+    print(request.GET.get("colRnk", ""))
+    print(course_relevance(request.GET.get("coRe", "")))
+
+
+    
+    values = [
+        year_of_exp(get_float(request.GET.get("workEx", 0))) * 0.1006,  
+        designation(request.GET.get("Desg", "")) * 0.0442,  
+        company_type(request.GET.get("comTy", ""))* 0.0748,
+        annual_scale_of_business(request.GET.get("annScale", "")) * 0.1535,  
+        ngo(request.GET.get("ngo", "")) * 0.04,  
+        gmat_score(get_float(request.GET.get("gmat", 0))) * 0.2853,  
+        cgpa_score(get_float(request.GET.get("cgpa", 0))) * 0.1219,  
+        ielts(get_float(request.GET.get("ielts", 0))) * 0.0268,  
+        college_ranking(request.GET.get("colRnk", "")) * 0.0979,  
+        course_relevance(request.GET.get("coRe", "")) * 0.0551
+    ]
+    return sum(values)
+    # return pd.DataFrame([values], columns=keys)
+
+# KNN Algorithm
+def euclidean_dist(instance1, instance2):
+    return np.linalg.norm(instance1 - instance2)
 
 def knn(trainSet, test_instance, k):
- 
-    distances = {}
-    sort = {}
-    length = test_instance.shape[1]
+    test_values = test_instance.values.flatten()  # Ensure test instance is a 1D array
 
-    for x in range(len(trainSet)):
- 
-        distance = euclidean_dist(test_instance, trainSet.iloc[x], length)
-        distances[x] = distance[0]
+    distances = [
+        (x, euclidean_dist(test_values, trainSet.iloc[x][:-1].values))  
+        for x in range(len(trainSet))
+    ]
 
-    sorted_distances = sorted(distances.items(), key=lambda x: x[1])
-    print(sorted_distances[:5])
+    sorted_distances = sorted(distances, key=lambda x: x[1])
+    neighbors_list = [sorted_distances[i][0] for i in range(min(k, len(trainSet)))]  # Handle small datasets
 
- 
-    neighbors_list = []
+    class_votes = {}
+    for idx in neighbors_list:
+        label = trainSet.iloc[idx, -1]  # Assuming last column is the label
+        class_votes[label] = class_votes.get(label, 0) + 1
 
-    for x in range(k):
-        neighbors_list.append(sorted_distances[x][0])
+    sorted_neighbors = sorted(class_votes.items(), key=lambda x: x[1], reverse=True)
+    return sorted_neighbors[0][0] if sorted_neighbors else "Unknown", neighbors_list
 
-    duplicateNeighbors = {}
+# Undergraduate Recommendation Logic
+def undergraduatealgo(request):
+    # TODO: Replace with real logic
+    result = [("University A", 90), ("University B", 85), ("University C", 80), ("University D", 75), ("University E", 70)]
+    return render(request, 'recommendation.html', {'results': result})
 
-    for x in range(len(neighbors_list)):
-        responses = trainSet.iloc[neighbors_list[x]][-1]
-        
-        if responses in duplicateNeighbors:
-            duplicateNeighbors[responses] += 1
-        else:
-            duplicateNeighbors[responses] = 1
-    print(responses)
+def graduatealgo(request):
+    test = create_student_score(request)  # Calculate student's score
 
-    sortedNeighbors = sorted(duplicateNeighbors.items(), key=lambda x: x[1], reverse=True)
-    return(sortedNeighbors, neighbors_list)
+    query = {
+        "size": 10,
+        "query": {
+            "bool": {
+                "must": {
+                    "script_score": {
+                        "query": { "match_all": {} },
+                        "script": {
+                            "source": "doc.containsKey(\"student__score\") && doc[\"student__score\"].size() > 0 ? 1 / (1 + Math.abs(params.student_score - doc[\"student__score\"].value)) : 0",
+                            "params": { "student_score": float(test) }
+                        }
+                    }
+                },
+                "filter": {
+                    "range": {
+                        "student__score": {
+                            "gte": float(test) - 0.1,
+                            "lte": float(test) + 0.1
+                        }
+                    }
+                }
+            }
+        },
+        "sort": [{"_score": "desc"}],
+        "collapse": {
+            "field": "business_school.keyword"
+        }
+    }
 
+    response = requests.get(f"{ES_HOST}/{ES_INDEX}/_search", json=query)
+    print(response.json())
 
+    if response.status_code == 200:
+        results = response.json()["hits"]["hits"]
+        schools = [(hit["_source"]["business_school"], round(hit["_score"] * 100, 2)) for hit in results]  # Scale score
+    else:
+        return HttpResponse(f"Error fetching data: {response.json()}", status=500)
 
-
-
-@app.route('/undergraduatealgo')
-def undergraduatealgo():
-    result = UnderGraduateServer.main()
-    list1 = []
-    list2 = []
-    for i in result:
-        list1.append(i[0])
-    for i in result:
-        list2.append(i[1])
-    return '''
-        <html>
-            <head>
-                <title>University Recommendation Application</title>
-                <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
-                <link href="http://getbootstrap.com/examples/jumbotron-narrow/jumbotron-narrow.css" rel="stylesheet">
-            </head>
-            <body>
-                <div class="container">
-                    <nav class="navbar navbar-expand-md navbar-dark bg-dark">
-                        <h3 class="navbar-brand">Undergraduate Recommendations</h3>
-                        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample05" aria-controls="navbarsExample05" aria-expanded="false" aria-label="Toggle navigation">
-                            <span class="navbar-toggler-icon"></span>
-                        </button>
-                        <div class="collapse navbar-collapse" id="navbarsExample05">
-                            <ul class="navbar-nav mr-auto">
-                                <li class="nav-item active">
-                                    <a class="nav-link" href="/main">Home</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="/undergraduate">Undergraduate College<span class="sr-only">(current)</span></a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="/graduate">Graduate College</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </nav>
-                </div>
-
-                <div class="container">
-                    <div class="jumbotron">
-                        <h1>University Recommendation system</h1>
-                        <p class="lead"></p>
-                          <p>The top recommended Universities based on your SAT Score & Maximum Tution Fee are </p>
-                            <table>
-                            <tr><td><h4>S.No</h4></td><td><h4>University</h4></td><td><h4>Acceptance Rate</h4></td></tr>
-                            <tr><td><p>1. </p></td><td>{result10}</td><td>{result11}</td></tr>
-                            <tr><td><p>2. </p></td><td>{result20}</td><td>{result21}</td></tr>
-                            <tr><td><p>3. </p></td><td>{result30}</td><td>{result31}</td></tr>
-                            <tr><td><p>4. </p></td><td>{result40}</td><td>{result41}</td></tr>
-                            <tr><td><p>5. </p></td><td>{result50}</td><td>{result51}</td></tr>
-                            </table>
-                    </div>
-     
-
-                    <footer class="footer">
-                    </footer>
-                </div>
-            </body>
-        </html>
-            '''.format(result10 = list1[0], result11 = list2[0], result20 = list1[1], result21 = list2[1],result30 = list1[2],result31 = list2[2], result40 = list1[3], result41 = list2[3],result50 = list1[4], result51 = list2[4])
-
-  
-@app.route('/graduatealgo')
-def graduatealgo():
-    data = pd.read_csv('../WebScraped_data/csv/processed_data.csv')
-    data.drop(data.columns[data.columns.str.contains('unnamed',case = False)],axis = 1, inplace = True)
-    greV = float(request.args.get("greV"))
-    greQ = float(request.args.get("greQ"))
-    greA = float(request.args.get("greA")) 
-    cgpa = float(request.args.get("cgpa"))
-    testSet = [[greV, greQ, greA, cgpa]]
-    test = pd.DataFrame(testSet)
-    k = 7
-    result,neigh = knn(data, test, k)
-    list1 = []
-    list2 = []
-    for i in result:
-        list1.append(i[0])
-    for i in result:
-        list2.append(i[1])
-    for i in list1:
-        print(i)
-    return '''
-        <html>
-            <head>
-                <title>University Recommendation Application</title>
-                
-                <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
-                <link href="http://getbootstrap.com/examples/jumbotron-narrow/jumbotron-narrow.css" rel="stylesheet">
-            </head>
-            <body>
-                <div class="container">
-                    <nav class="navbar navbar-expand-md navbar-dark bg-dark">
-                        <h3 class="navbar-brand">Graduate Recommendations</h3>
-                        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample05" aria-controls="navbarsExample05" aria-expanded="false" aria-label="Toggle navigation">
-                            <span class="navbar-toggler-icon"></span>
-                        </button>
-                        <div class="collapse navbar-collapse" id="navbarsExample05">
-                            <ul class="navbar-nav mr-auto">
-                                <li class="nav-item active">
-                                    <a class="nav-link" href="/main">Home</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="/undergraduate">Undergraduate College</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="/graduate">Graduate College<span class="sr-only">(current)</span></a>
-                                </li>
-                            </ul>
-                        </div>
-                    </nav>
-                </div>
-
-                <div class="container">
-                    <div class="jumbotron">
-                        <h1>University Recommendation system</h1>
-                        <p class="lead"></p>
-                            <p>
-                                The top recommended Universities based on GRE score and GPA are 
-                            </p>
-                            <table>
-                            
-                            <tr><td><h4>S.No</h4></td><td><h4>University</h4></td></tr>
-                            <tr><td><p>1. </p></td><td>{result10}</td></tr>
-                            <tr><td><p>2. </p></td><td>{result20}</td></tr>
-                            <tr><td><p>3. </p></td><td>{result30}</td></tr>
-                            <tr><td><p>4. </p></td><td>{result40}</td></tr>
-                            <tr><td><p>5. </p></td><td>{result50}</td></tr>
-                            </table>
-                    </div>
-     
-
-                    <footer class="footer">
-                    </footer>
-                </div>
-            </body>
-        </html>
-            '''.format(result10 = list1[0], result20 = list1[1],result30 = list1[2], result40 = list1[3],result50 = list1[4])
+    return render(request, 'recommendation.html', {'results': schools})
 
 
+# URL Patterns
+urlpatterns = [
+    path('', index, name='index'),
+    path('main', index, name='index'),
+    path('graduate', graduate, name='graduate'),
+    path('undergraduate', undergraduate, name='undergraduate'),
+    path('undergraduatealgo', undergraduatealgo, name='undergraduatealgo'),
+    path('graduatealgo', graduatealgo, name='graduatealgo'),
+]
 
-if __name__ == '__main__':
-    app.run()
+# Django runserver command
+if __name__ == "__main__":
+    from django.core.management import execute_from_command_line
+    execute_from_command_line(["manage.py", "runserver", "0.0.0.0:8000"])

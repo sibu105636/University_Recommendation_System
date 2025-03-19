@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>University Recommendation Application</title>
+
+    <!-- Bootstrap 5 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+
+    <style>
+        /* Smooth gradient background */
+        body {
+            background: linear-gradient(to right, #e3f2fd, #ffffff);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* Navbar styling */
+        .navbar {
+            background-color: #007bff;
+            padding: 1rem;
+            border-radius: 0 0 10px 10px;
+        }
+        .navbar-brand {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #fff;
+        }
+        .navbar-brand:hover {
+            color: #d9ebff;
+        }
+
+        /* Jumbotron (Hero Section) */
+        .jumbotron {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2.5rem;
+            border-radius: 15px;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .jumbotron h1 {
+            font-weight: 600;
+            color: #007bff;
+        }
+        .jumbotron p {
+            font-size: 1.2rem;
+            color: #555;
+        }
+
+        /* Forms */
+        .form-control {
+            border-radius: 8px;
+            border: 1px solid #007bff;
+            transition: all 0.3s ease-in-out;
+        }
+        .form-control:focus {
+            border-color: #0056b3;
+            box-shadow: 0 0 10px rgba(0, 91, 187, 0.3);
+        }
+        .form-select {
+            border-radius: 8px;
+            border: 1px solid #007bff;
+        }
+
+        /* Submit Button */
+        .btn-primary {
+            background: #007bff;
+            border: none;
+            padding: 12px 20px;
+            font-size: 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background: #0056b3;
+            box-shadow: 0px 5px 15px rgba(0, 91, 187, 0.4);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 1rem;
+            background: #343a40;
+            color: white;
+            margin-top: 30px;
+            border-radius: 10px 10px 0 0;
+        }
+
+        /* Error Messages */
+        .error {
+            color: red;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+    
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container">
+        <a class="navbar-brand text-dark fw-bold" href="/main">StudyArk</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link text-dark" href="/main">Home</a></li>
+                <li class="nav-item"><a class="nav-link text-dark" href="/undergraduate">Undergraduate</a></li>
+                <li class="nav-item"><a class="nav-link active text-dark fw-bold" href="/graduate">Graduate</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+    
+
+<div class="container mt-4">
+    <div class="jumbotron text-center p-5 bg-light shadow-lg rounded">
+        <h1 class="mb-3 fw-bold text-primary">
+            🎓 MBA Program Recommendation
+        </h1>
+        <p class="lead text-secondary">
+            Fill in the details below to get personalized university recommendations.
+        </p>
+
+        <form id="recommendationForm" class="row g-3" action="/graduatealgo" method="GET">
+            <div class="col-md-6">
+                <label for="workEx" class="form-label fw-bold text-secondary">
+                    <i class="bi bi-briefcase-fill"></i> Years of Work Experience
+                </label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light text-dark">
+                        <i class="bi bi-calendar-check"></i>
+                    </span>
+                    <input type="number" id="workEx" name="workEx" class="form-control border-secondary shadow-sm bg-light"
+                        placeholder="e.g., 5" min="0" max="30" required>
+                </div>
+            </div>
+
+            
+
+            <div class="col-md-6">
+                <label for="Desg" class="form-label fw-bold text-secondary">
+                    <i class="bi bi-person-badge"></i> Designation
+                </label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light text-dark">
+                        <i class="bi bi-award-fill"></i>
+                    </span>
+                    <select id="Desg" name="Desg" class="form-select border-secondary shadow-sm" required>
+                        <option value="" selected disabled>Select your designation</option>
+                        <option value="Category 1">Category 1</option>
+                        <option value="Category 2">Category 2</option>
+                        <option value="Category 3">Category 3</option>
+                        <option value="Category 4">Category 4</option>
+                        <option value="Category 5">Category 5</option>
+                    </select>
+                </div>
+            </div>
+            
+            
+
+            <div class="col-md-6">
+                <label for="comTy" class="form-label fw-bold text-secondary">
+                    <i class="bi bi-building"></i> Company Type
+                </label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light text-dark">
+                        <i class="bi bi-briefcase-fill"></i>
+                    </span>
+                    <select id="comTy" name="comTy" class="form-select border-secondary shadow-sm" required>
+                        <option value="" selected disabled>Select company type</option>
+                        <option value="Category 1">Category 1</option>
+                        <option value="Category 2">Category 2</option>
+                        <option value="Category 3">Category 3</option>
+                        <option value="Category 4">Category 4</option>
+                        <option value="Category 5">Category 5</option>
+                    </select>
+                </div>
+            </div>
+            
+            
+
+            <div class="col-md-6">
+                <label for="annScale" class="form-label fw-bold text-secondary">
+                    <i class="bi bi-building"></i> Annual Scale of Business Impacted
+                </label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light text-dark">
+                        <i class="bi bi-cash-stack"></i>
+                    </span>
+                    <select id="annScale" name="annScale" class="form-select border-secondary shadow-sm" required>
+                        <option value="" selected disabled>Select Annual Scale of Business Impacted</option>
+                        <option value="Category 1">Category 1 - Small Scale</option>
+                        <option value="Category 2">Category 2 - Medium Scale</option>
+                        <option value="Category 3">Category 3 - Large Scale</option>
+                        <option value="Category 4">Category 4 - Enterprise Level</option>
+                        <option value="Category 5">Category 5 - Global Level</option>
+                    </select>
+                </div>
+            </div>
+            
+            
+            
+            
+            
+
+            <!-- <div class="col-md-6">
+                <label for="annScale" class="form-label">Annual Scale of Business Impacted</label>
+                <input type="text" id="annScale" name="annScale" class="form-control" placeholder="e.g., $10M" required>
+            </div> -->
+
+            <div class="col-md-6">
+                <label for="ngo" class="form-label fw-bold text-secondary">
+                    <i class="bi bi-briefcase-fill"></i> NGO Involvement
+                </label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light text-dark">
+                        <i class="bi bi-people-fill"></i>
+                    </span>
+                    <select id="ngo" name="ngo" class="form-select border-secondary shadow-sm bg-light" required>
+                        <option value="" selected disabled>Select your level of involvement</option>
+                        <option value="Category 1">Category 1 - Minimal Involvement</option>
+                        <option value="Category 2">Category 2 - Occasional Volunteering</option>
+                        <option value="Category 3">Category 3 - Regular Volunteering</option>
+                        <option value="Category 4">Category 4 - Leadership Role</option>
+                        <option value="Category 5">Category 5 - Founder/Active Contributor</option>
+                    </select>
+                </div>
+            </div>
+            
+            
+
+            <div class="col-md-6">
+                <label for="gmat" class="form-label fw-bold text-secondary">
+                    <i class="bi bi-bar-chart-line"></i> GMAT Score
+                </label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light text-dark">
+                        <i class="bi bi-graph-up"></i>
+                    </span>
+                    <input type="number" id="gmat" name="gmat" 
+                           class="form-control border-secondary shadow-sm bg-light"
+                           placeholder="Enter GMAT score (200 - 800)" min="200" max="800" required>
+                </div>
+            </div>
+            
+            
+
+            <div class="col-md-6">
+                <label for="cgpa" class="form-label fw-bold text-secondary">
+                    <i class="bi bi-award"></i> CGPA
+                </label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light text-dark">
+                        <i class="bi bi-mortarboard"></i>
+                    </span>
+                    <input type="number" id="cgpa" name="cgpa" 
+                           class="form-control border-secondary shadow-sm bg-light"
+                           placeholder="Enter CGPA (0 - 10)" step="0.1" min="0" max="10" required>
+                </div>
+            </div>
+            
+            
+
+            <div class="col-md-6">
+                <label for="ielts" class="form-label fw-bold text-secondary">
+                    <i class="bi bi-translate"></i> IELTS Score
+                </label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light text-dark">
+                        <i class="bi bi-pencil-square"></i>
+                    </span>
+                    <input type="number" id="ielts" name="ielts" 
+                           class="form-control border-secondary shadow-sm bg-light"
+                           placeholder="Enter IELTS Score (0 - 9)" step="0.1" min="0" max="9" required>
+                </div>
+            </div>
+            
+            
+
+            <div class="col-md-6">
+                <label for="colRnk" class="form-label fw-bold text-secondary">
+                    <i class="bi bi-mortarboard"></i> College/Institute Ranking
+                </label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light text-dark">
+                        <i class="bi bi-trophy"></i>
+                    </span>
+                    <select id="colRnk" name="colRnk" class="form-select border-secondary shadow-sm bg-light" required>
+                        <option value="" selected disabled>Select ranking category</option>
+                        <option value="Category 1">Top 10</option>
+                        <option value="Category 2">Top 50</option>
+                        <option value="Category 3">Top 100</option>
+                        <option value="Category 4">Top 500</option>
+                        <option value="Category 5">Other Recognized Institutes</option>
+                    </select>
+                </div>
+            </div>
+            
+            
+
+            <div class="col-md-6">
+                <label for="coRe" class="form-label fw-bold text-secondary">
+                    <i class="bi bi-book"></i> Course Relevance
+                </label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light text-dark">
+                        <i class="bi bi-check2-circle"></i>
+                    </span>
+                    <select id="coRe" name="coRe" class="form-select border-secondary shadow-sm bg-light" required>
+                        <option value="" selected disabled>Select relevance level</option>
+                        <option value="Category 1">Highly Relevant</option>
+                        <option value="Category 2">Moderately Relevant</option>
+                        <option value="Category 3">Somewhat Relevant</option>
+                        <option value="Category 4">Slightly Relevant</option>
+                        <option value="Category 5">Not Relevant</option>
+                    </select>
+                </div>
+            </div>
+            
+            
+
+            <div class="col-12 mt-3">
+                <button type="submit" class="btn btn-primary w-100">Get Recommendations</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<footer class="footer">
+    <p>&copy; 2025 University Recommendation System. All rights reserved.</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
