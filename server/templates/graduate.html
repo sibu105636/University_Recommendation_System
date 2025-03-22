@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>University Recommendation Application</title>
-
-    <!-- Bootstrap 5 -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 
     <style>
         /* Smooth gradient background */
@@ -102,247 +103,399 @@
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
+        /* Step Form Styles */
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        .step-indicators {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            list-style: none;
+            padding: 0;
+        }
+
+        .step-indicator {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #ddd;
+            margin: 0 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: #555;
+            border: 2px solid #ddd; /* Added border */
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease; /* Added transition */
+        }
+
+        .step-indicator.active {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff; /* Keep border color the same as background */
+        }
+
+        .step-indicator.completed {
+            background-color: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+
+        .btn-nav {
+            margin-top: 20px;
+        }
+
+        .btn-primary, .btn-secondary {
+            margin: 0 5px;
+        }
     </style>
 </head>
-    
 <body>
-
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container">
-        <a class="navbar-brand text-dark fw-bold" href="/main">StudyArk</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link text-dark" href="/main">Home</a></li>
-                <li class="nav-item"><a class="nav-link text-dark" href="/undergraduate">Undergraduate</a></li>
-                <li class="nav-item"><a class="nav-link active text-dark fw-bold" href="/graduate">Graduate</a></li>
-            </ul>
+    <nav class="navbar navbar-expand-lg" style="background-color: #ffffff;">
+        <div class="container">
+            <a class="navbar-brand" href="/main">
+                <img src="https://studyark.in/wp-content/uploads/2025/01/StudyArk_Logo.png" alt="StudyArk Logo" height="100" width="auto">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link text-dark" href="/main">Home</a></li>
+                    <li class="nav-item"><a class="nav-link text-dark" href="/undergraduate">Undergraduate</a></li>
+                    <li class="nav-item"><a class="nav-link active text-dark fw-bold" href="/graduate">Graduate</a></li>
+                </ul>
+            </div>
         </div>
-    </div>
-</nav>
-    
+    </nav>
 
-<div class="container mt-4">
-    <div class="jumbotron text-center p-5 bg-light shadow-lg rounded">
-        <h1 class="mb-3 fw-bold text-primary">
-            🎓 MBA Program Recommendation
-        </h1>
-        <p class="lead text-secondary">
-            Fill in the details below to get personalized university recommendations.
-        </p>
-
-        <form id="recommendationForm" class="row g-3" action="/graduatealgo" method="GET">
-            <div class="col-md-6">
-                <label for="workEx" class="form-label fw-bold text-secondary">
-                    <i class="bi bi-briefcase-fill"></i> Years of Work Experience
-                </label>
-                <div class="input-group">
-                    <span class="input-group-text bg-light text-dark">
-                        <i class="bi bi-calendar-check"></i>
-                    </span>
-                    <input type="number" id="workEx" name="workEx" class="form-control border-secondary shadow-sm bg-light"
-                        placeholder="e.g., 5" min="0" max="30" required>
-                </div>
-            </div>
-
+    <div class="container mt-4">
+        <div class="jumbotron text-center p-5 bg-white shadow-lg rounded">
+            <h1 class="mb-3 fw-bold text-gradient">
+                🎓 Find Your Perfect MBA Program!
+            </h1>
+            <p class="lead text-muted">
+                <span class="fw-semibold">Enter your details and discover top universities tailored to your profile.</span>
+            </p>
             
-
-            <div class="col-md-6">
-                <label for="Desg" class="form-label fw-bold text-secondary">
-                    <i class="bi bi-person-badge"></i> Designation
-                </label>
-                <div class="input-group">
-                    <span class="input-group-text bg-light text-dark">
-                        <i class="bi bi-award-fill"></i>
-                    </span>
-                    <select id="Desg" name="Desg" class="form-select border-secondary shadow-sm" required>
-                        <option value="" selected disabled>Select your designation</option>
-                        <option value="Category 1">Category 1</option>
-                        <option value="Category 2">Category 2</option>
-                        <option value="Category 3">Category 3</option>
-                        <option value="Category 4">Category 4</option>
-                        <option value="Category 5">Category 5</option>
-                    </select>
-                </div>
-            </div>
-            
-            
-
-            <div class="col-md-6">
-                <label for="comTy" class="form-label fw-bold text-secondary">
-                    <i class="bi bi-building"></i> Company Type
-                </label>
-                <div class="input-group">
-                    <span class="input-group-text bg-light text-dark">
-                        <i class="bi bi-briefcase-fill"></i>
-                    </span>
-                    <select id="comTy" name="comTy" class="form-select border-secondary shadow-sm" required>
-                        <option value="" selected disabled>Select company type</option>
-                        <option value="Category 1">Category 1</option>
-                        <option value="Category 2">Category 2</option>
-                        <option value="Category 3">Category 3</option>
-                        <option value="Category 4">Category 4</option>
-                        <option value="Category 5">Category 5</option>
-                    </select>
-                </div>
-            </div>
-            
-            
-
-            <div class="col-md-6">
-                <label for="annScale" class="form-label fw-bold text-secondary">
-                    <i class="bi bi-building"></i> Annual Scale of Business Impacted
-                </label>
-                <div class="input-group">
-                    <span class="input-group-text bg-light text-dark">
-                        <i class="bi bi-cash-stack"></i>
-                    </span>
-                    <select id="annScale" name="annScale" class="form-select border-secondary shadow-sm" required>
-                        <option value="" selected disabled>Select Annual Scale of Business Impacted</option>
-                        <option value="Category 1">Category 1 - Small Scale</option>
-                        <option value="Category 2">Category 2 - Medium Scale</option>
-                        <option value="Category 3">Category 3 - Large Scale</option>
-                        <option value="Category 4">Category 4 - Enterprise Level</option>
-                        <option value="Category 5">Category 5 - Global Level</option>
-                    </select>
-                </div>
-            </div>
-            
-            
-            
-            
-            
-
-            <!-- <div class="col-md-6">
-                <label for="annScale" class="form-label">Annual Scale of Business Impacted</label>
-                <input type="text" id="annScale" name="annScale" class="form-control" placeholder="e.g., $10M" required>
+            <!-- <div class="d-flex justify-content-center mt-4">
+                <a href="#form-section" class="btn btn-lg btn-primary shadow-sm px-4 py-2 rounded-pill">
+                    <i class="fas fa-search"></i> Start Now
+                </a>
             </div> -->
 
-            <div class="col-md-6">
-                <label for="ngo" class="form-label fw-bold text-secondary">
-                    <i class="bi bi-briefcase-fill"></i> NGO Involvement
-                </label>
-                <div class="input-group">
-                    <span class="input-group-text bg-light text-dark">
-                        <i class="bi bi-people-fill"></i>
-                    </span>
-                    <select id="ngo" name="ngo" class="form-select border-secondary shadow-sm bg-light" required>
-                        <option value="" selected disabled>Select your level of involvement</option>
-                        <option value="Category 1">Category 1 - Minimal Involvement</option>
-                        <option value="Category 2">Category 2 - Occasional Volunteering</option>
-                        <option value="Category 3">Category 3 - Regular Volunteering</option>
-                        <option value="Category 4">Category 4 - Leadership Role</option>
-                        <option value="Category 5">Category 5 - Founder/Active Contributor</option>
-                    </select>
-                </div>
-            </div>
-            
-            
+            <form id="recommendationForm" class="row g-3" action="/graduatealgo" method="GET">
+                <ul class="step-indicators">
+                    <li class="step-indicator active" data-step="1">1</li>
+                    <li class="step-indicator" data-step="2">2</li>
+                    <li class="step-indicator" data-step="3">3</li>
+                    <li class="step-indicator" data-step="4">4</li>
+                </ul>
 
-            <div class="col-md-6">
-                <label for="gmat" class="form-label fw-bold text-secondary">
-                    <i class="bi bi-bar-chart-line"></i> GMAT Score
-                </label>
-                <div class="input-group">
-                    <span class="input-group-text bg-light text-dark">
-                        <i class="bi bi-graph-up"></i>
-                    </span>
-                    <input type="number" id="gmat" name="gmat" 
-                           class="form-control border-secondary shadow-sm bg-light"
-                           placeholder="Enter GMAT score (200 - 800)" min="200" max="800" required>
-                </div>
-            </div>
-            
-            
+                <div class="step active" data-step="1">
+                    <div class="col-md-6">
+                        <label for="workEx" class="form-label fw-bold text-secondary">
+                            <i class="bi bi-briefcase-fill"></i> Years of Work Experience
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-primary text-white rounded-start">
+                                <i class="bi bi-calendar-check"></i>
+                            </span>
+                            <input type="number" id="workEx" name="workEx" class="form-select border-primary shadow-sm rounded-end"
+                                   placeholder="e.g., 5" min="0" max="30" required>
+                        </div>
+                    </div>
 
-            <div class="col-md-6">
-                <label for="cgpa" class="form-label fw-bold text-secondary">
-                    <i class="bi bi-award"></i> CGPA
-                </label>
-                <div class="input-group">
-                    <span class="input-group-text bg-light text-dark">
-                        <i class="bi bi-mortarboard"></i>
-                    </span>
-                    <input type="number" id="cgpa" name="cgpa" 
-                           class="form-control border-secondary shadow-sm bg-light"
-                           placeholder="Enter CGPA (0 - 10)" step="0.1" min="0" max="10" required>
+                    <div class="col-md-6">
+                        <label for="Desg" class="form-label fw-bold text-secondary">
+                            <i class="bi bi-person-badge"></i> Designation
+                        </label>
+                        <div class="input-group shadow-sm">
+                            <span class="input-group-text bg-primary text-white rounded-start">
+                                <i class="bi bi-award-fill"></i>
+                            </span>
+                            <select id="Desg" name="Desg" class="form-select border-primary shadow-sm rounded-end" required>
+                                <option value="" selected disabled>🔽 Select your designation</option>
+                                <option value="Category 1">CXO</option>
+                                <option value="Category 2">Head of Department (SVP/ VP/ Director)</option>
+                                <option value="Category 3">Senior Management</option>
+                                <option value="Category 4">Mid Management</option>
+                                <option value="Category 5">Associate/ Analyst</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-12 text-end">
+                        <button type="button" class="btn btn-primary next-step">Next</button>
+                    </div>
                 </div>
-            </div>
-            
-            
 
-            <div class="col-md-6">
-                <label for="ielts" class="form-label fw-bold text-secondary">
-                    <i class="bi bi-translate"></i> IELTS Score
-                </label>
-                <div class="input-group">
-                    <span class="input-group-text bg-light text-dark">
-                        <i class="bi bi-pencil-square"></i>
-                    </span>
-                    <input type="number" id="ielts" name="ielts" 
-                           class="form-control border-secondary shadow-sm bg-light"
-                           placeholder="Enter IELTS Score (0 - 9)" step="0.1" min="0" max="9" required>
+                <div class="step" data-step="2">
+                    <div class="col-md-6">
+                        <label for="comTy" class="form-label fw-bold text-secondary">
+                            <i class="bi bi-building"></i> Company Type
+                        </label>
+                        <div class="input-group shadow-sm">
+                            <span class="input-group-text bg-primary text-white rounded-start">
+                                <i class="bi bi-briefcase-fill"></i>
+                            </span>
+                            <select id="comTy" name="comTy" class="form-select border-primary shadow-sm rounded-end" required>
+                                <option value="" selected disabled>Select company type</option>
+                                <option value="Category 1">FAANG, Nvidia, Tesla, MBB Consulting (McKinsey, BCG, Bain), Top Consulting firms</option>
+                                <option value="Category 2">Tier-1 Tech, Big 4 Consulting (Deloitte, EY, PwC, KPMG), Top Investment Banks (Goldman Sachs, JP Morgan)</option>
+                                <option value="Category 3">Unicorn Startups, Mid-Level MNCs, Fortune 500 Companies</option>
+                                <option value="Category 4">Growth Stage Startups, Small Consulting Firms, Regional MNCs</option>
+                                <option value="Category 5">Early Stage Startups, Local Businesses, Others</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="annScale" class="form-label fw-bold text-secondary">
+                            <i class="bi bi-building"></i> Annual Scale of Business Impacted
+                        </label>
+                        <div class="input-group shadow-sm">
+                            <span class="input-group-text bg-primary text-white rounded-start">
+                                <i class="bi bi-cash-stack"></i>
+                            </span>
+                            <select id="annScale" name="annScale" class="form-select border-primary shadow-sm rounded-end" required>
+                                <option value="" selected disabled>Select Annual Scale of Business Impacted</option>
+                                <option value="Category 1">₹1000 Cr+ revenue OR 1000+ people team</option>
+                                <option value="Category 2">₹500-1000 Cr revenue OR 500-999 people team</option>
+                                <option value="Category 3">₹100-500 Cr revenue OR 100-499 people team</option>
+                                <option value="Category 4">₹20-100 Cr revenue OR 20-99 people team</option>
+                                <option value="Category 5">Less than ₹20 Cr revenue OR Less than 20 people team</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="ngo" class="form-label fw-bold text-secondary">
+                            <i class="bi bi-briefcase-fill"></i> NGO Involvement
+                        </label>
+                        <div class="input-group shadow-sm">
+                            <span class="input-group-text bg-primary text-white rounded-start">
+                                <i class="bi bi-people-fill"></i>
+                            </span>
+                            <select id="ngo" name="ngo" class="form-select border-primary shadow-sm rounded-end" required>
+                                <option value="" selected disabled>Select your level of involvement</option>
+                                <option value="Category 1">Founded an NGO or led national-level initiatives with 100K+ beneficiaries</option>
+                                <option value="Category 2">Led large-scale projects (state-level or 10K+ beneficiaries)</option>
+                                <option value="Category 3">Managed regional projects or contributed significantly (1K+ beneficiaries)</option>
+                                <option value="Category 4">Volunteer with substantial contributions (100+ beneficiaries)</option>
+                                <option value="Category 5">Occasional volunteering or donations (less than 100 beneficiaries)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="button" class="btn btn-primary prev-step">Previous</button>
+                            <button type="button" class="btn btn-primary next-step">Next</button>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            
-            
 
-            <div class="col-md-6">
-                <label for="colRnk" class="form-label fw-bold text-secondary">
-                    <i class="bi bi-mortarboard"></i> College/Institute Ranking
-                </label>
-                <div class="input-group">
-                    <span class="input-group-text bg-light text-dark">
-                        <i class="bi bi-trophy"></i>
-                    </span>
-                    <select id="colRnk" name="colRnk" class="form-select border-secondary shadow-sm bg-light" required>
-                        <option value="" selected disabled>Select ranking category</option>
-                        <option value="Category 1">Top 10</option>
-                        <option value="Category 2">Top 50</option>
-                        <option value="Category 3">Top 100</option>
-                        <option value="Category 4">Top 500</option>
-                        <option value="Category 5">Other Recognized Institutes</option>
-                    </select>
+                <div class="step" data-step="3">
+                    <div class="col-md-6">
+                        <label for="gmat" class="form-label fw-bold text-secondary">
+                            <i class="bi bi-bar-chart-line"></i> GMAT Score
+                        </label>
+                        <div class="input-group shadow-sm">
+                            <span class="input-group-text bg-primary text-white rounded-start">
+                                <i class="bi bi-graph-up"></i>
+                            </span>
+                            <input type="number" id="gmat" name="gmat"
+                                   class="form-select border-primary shadow-sm rounded-end"
+                                   placeholder="Enter GMAT score (200 - 800)" min="200" max="800" required>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="cgpa" class="form-label fw-bold text-secondary">
+                            <i class="bi bi-award"></i> CGPA
+                        </label>
+                        <div class="input-group shadow-sm">
+                            <span class="input-group-text bg-primary text-white rounded-start">
+                                <i class="bi bi-mortarboard"></i>
+                            </span>
+                            <input type="number" id="cgpa" name="cgpa"
+                                   class="form-select border-primary shadow-sm rounded-end"
+                                   placeholder="Enter CGPA (0 - 10)" step="0.1" min="0" max="10" required>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="ielts" class="form-label fw-bold text-secondary">
+                            <i class="bi bi-translate"></i> IELTS Score
+                        </label>
+                        <div class="input-group shadow-sm">
+                            <span class="input-group-text bg-primary text-white rounded-start">
+                                <i class="bi bi-pencil-square"></i>
+                            </span>
+                            <input type="number" id="ielts" name="ielts"
+                                   class="form-select border-primary shadow-sm rounded-end"
+                                   placeholder="Enter IELTS Score (0 - 9)" step="0.1" min="0" max="9" required>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="button" class="btn btn-primary prev-step">Previous</button>
+                            <button type="button" class="btn btn-primary next-step">Next</button>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            
-            
 
-            <div class="col-md-6">
-                <label for="coRe" class="form-label fw-bold text-secondary">
-                    <i class="bi bi-book"></i> Course Relevance
-                </label>
-                <div class="input-group">
-                    <span class="input-group-text bg-light text-dark">
-                        <i class="bi bi-check2-circle"></i>
-                    </span>
-                    <select id="coRe" name="coRe" class="form-select border-secondary shadow-sm bg-light" required>
-                        <option value="" selected disabled>Select relevance level</option>
-                        <option value="Category 1">Highly Relevant</option>
-                        <option value="Category 2">Moderately Relevant</option>
-                        <option value="Category 3">Somewhat Relevant</option>
-                        <option value="Category 4">Slightly Relevant</option>
-                        <option value="Category 5">Not Relevant</option>
-                    </select>
+                <div class="step" data-step="4">
+                    <div class="col-md-6">
+                        <label for="colRnk" class="form-label fw-bold text-secondary">
+                            <i class="bi bi-mortarboard"></i> College/Institute Ranking
+                        </label>
+                        <div class="input-group shadow-sm">
+                            <span class="input-group-text bg-primary text-white rounded-start">
+                                <i class="bi bi-trophy"></i>
+                            </span>
+                            <select id="colRnk" name="colRnk" class="form-select border-primary shadow-sm rounded-end" required>
+                                <option value="" selected disabled>Select ranking category</option>
+                                <option value="Category 1">IITs, IIMs, AIIMS, NLSIU, ISB, IISc (Top-tier institutions)</option>
+                                <option value="Category 2">Tier-1 NITs, XLRI, SPJIMR, JNU, IISER, TISS</option>
+                                <option value="Category 3">Top Private Colleges (BITS, Ashoka, Shiv Nadar, VIT, SRCC, DU top colleges)</option>
+                                <option value="Category 4">State Government Universities, Decent Private Universities</option>
+                                <option value="Category 5">Local/Regional Colleges, other Private Institutions</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="coRe" class="form-label fw-bold text-secondary">
+                            <i class="bi bi-book"></i> Course Relevance
+                        </label>
+                        <div class="input-group shadow-sm">
+                            <span class="input-group-text bg-primary text-white rounded-start">
+                                <i class="bi bi-check2-circle"></i>
+                            </span>
+                            <select id="coRe" name="coRe" class="form-select border-primary shadow-sm rounded-end" required>
+                                <option value="" selected disabled>Select relevance level</option>
+                                <option value="Category 1">STEM, Medicine, Law, Business Management, Finance, Economics</option>
+                                <option value="Category 2">Liberal Arts, Social Sciences, Public Policy</option>
+                                <option value="Category 3">Hospitality, Media & Communication, Design & Fine Arts</option>
+                                <option value="Category 4">Education, Psychology, Sports Management</option>
+                                <option value="Category 5">General Studies, Vocational Courses, Others</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-12 text-start">
+                        <div class="mt-4"> </div><button type="button" class="btn btn-primary prev-step">Previous</button>
+                    </div>
+                    <div class="col-12 text-end">
+                        <button type="submit" class="btn btn-primary">Get Recommendations</button>
+                    </div>
                 </div>
-            </div>
-            
-            
-
-            <div class="col-12 mt-3">
-                <button type="submit" class="btn btn-primary w-100">Get Recommendations</button>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
-</div>
 
-<footer class="footer">
-    <p>&copy; 2025 University Recommendation System. All rights reserved.</p>
-</footer>
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2025 StudyArk University Finder. All rights reserved.</p>
+        <a href="#"><i class="fab fa-facebook"></i></a>
+        <a href="#"><i class="fab fa-twitter"></i></a>
+        <a href="#"><i class="fab fa-linkedin"></i></a>
+    </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const steps = document.querySelectorAll('.step');
+        const indicators = document.querySelectorAll('.step-indicator');
+        const nextButtons = document.querySelectorAll('.next-step');
+        const prevButtons = document.querySelectorAll('.prev-step');
+        const form = document.getElementById('recommendationForm');
 
+        let currentStep = 1;
+
+        function updateStep() {
+            steps.forEach(step => step.classList.remove('active'));
+            indicators.forEach(indicator => {
+                indicator.classList.remove('active');
+                indicator.classList.remove('completed');
+            });
+
+            const currentStepElement = document.querySelector(`.step[data-step="${currentStep}"]`);
+            const currentIndicator = document.querySelector(`.step-indicator[data-step="${currentStep}"]`);
+
+            if (currentStepElement) {
+                currentStepElement.classList.add('active');
+            }
+            if (currentIndicator) {
+                currentIndicator.classList.add('active');
+            }
+
+            // Mark previous steps as completed
+            for (let i = 1; i < currentStep; i++) {
+                const completedIndicator = document.querySelector(`.step-indicator[data-step="${i}"]`);
+                if (completedIndicator) {
+                    completedIndicator.classList.add('completed');
+                }
+            }
+        }
+
+        nextButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const currentFormGroup = button.closest('.step');
+                const inputs = currentFormGroup.querySelectorAll('input, select');
+                let isFormValid = true;
+
+                inputs.forEach(input => {
+                    if (!input.checkValidity()) {
+                        isFormValid = false;
+                        input.classList.add('is-invalid');
+                    } else {
+                        input.classList.remove('is-invalid');
+                    }
+                });
+
+                if (isFormValid) {
+                    currentStep++;
+                    if (currentStep <= steps.length) {
+                        updateStep();
+                    }
+                } else {
+                     // Optionally, display a message to the user
+                    alert('Please fill in all required fields in this section.');
+                }
+            });
+        });
+
+        prevButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                currentStep--;
+                if (currentStep >= 1) {
+                    updateStep();
+                }
+            });
+        });
+
+        form.addEventListener('submit', (event) => {
+            let isFormValid = true;
+            const allInputs = form.querySelectorAll('input, select');
+            allInputs.forEach(input => {
+                if (!input.checkValidity()) {
+                    isFormValid = false;
+                    input.classList.add('is-invalid');
+                }
+            });
+
+            if (!isFormValid) {
+                event.preventDefault();
+                 alert('Please fill in all required fields in the form.');
+            }
+        });
+
+        updateStep(); // Initialize the form
+    </script>
 </body>
 </html>

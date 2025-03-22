@@ -170,11 +170,24 @@ def graduatealgo(request):
 
     if response.status_code == 200:
         results = response.json()["hits"]["hits"]
-        schools = [(hit["_source"]["business_school"], round(hit["_score"] * 100, 2)) for hit in results]  # Scale score
+
+        schools = [
+            {
+                "business_school": hit["_source"].get("business_school", "N/A"),
+                "university": hit["_source"].get("university", "N/A"),
+                "location": hit["_source"].get("location", "N/A"),
+                "course_duration_months": hit["_source"].get("course_duration_(months)", "N/A"),  # Renamed key
+                "total_course_fees": hit["_source"].get("total_course_fees", "N/A"),
+                "university_website": hit["_source"].get("university_website", "#"),  # Add website if available
+            }
+            for hit in results
+        ]
     else:
         return HttpResponse(f"Error fetching data: {response.json()}", status=500)
 
     return render(request, 'recommendation.html', {'results': schools})
+
+
 
 
 # URL Patterns
