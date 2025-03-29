@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <title>🎓 StydyArk University Recommendation App</title>
+    <meta name="description" content="Find the best universities tailored to your GRE score and GPA with StudyArk.">
+    <meta name="keywords" content="university recommendations, GRE, GPA, StudyArk, MBA programs">
+    <title>🎓 StudyArk University Recommendation App</title>
 
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
@@ -17,14 +18,10 @@
 
     <style>
         /* General Styling */
-        body {
+         /* Smooth gradient background */
+         body {
+            background: linear-gradient(to right, #e3f2fd, #ffffff);
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #dff6ff, #85c1e9);
-            color: #333;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
         }
 
         /* Navbar Styling - Transparent Effect */
@@ -70,6 +67,9 @@
             background: #007bff;
             color: white;
         }
+        .table tbody tr {
+            transition: background 0.3s ease;
+        }
         .table tbody tr:hover {
             background: rgba(0, 123, 255, 0.1);
         }
@@ -110,6 +110,38 @@
             background: #0056b3;
             transform: scale(1.05);
         }
+
+        /* Fade-in Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+            /* Table Row Hover Effect */
+        .table tbody tr {
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .table tbody tr:hover {
+            background-color: rgba(0, 123, 255, 0.1); /* Light blue background on hover */
+            transform: scale(1.02); /* Slight zoom effect */
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+        }
+
+        /* Button Hover Effect */
+        /* Button Primary Hover Effect */
+        .btn-primary {
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #66b3ff; /* Light blue on hover */
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0px 4px 8px rgba(102, 179, 255, 0.2); /* Light blue shadow */
+        }
     </style>
 </head>
       
@@ -126,73 +158,79 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link text-dark" href="/main">Home</a></li>
-                <li class="nav-item"><a class="nav-link text-dark" href="/undergraduate">Undergraduate</a></li>
-                <li class="nav-item"><a class="nav-link active text-dark fw-bold" href="/graduate">Graduate</a></li>
+                <li class="nav-item"><a class="nav-link text-primary" href="/main">Home</a></li>
+                <li class="nav-item"><a class="nav-link text-primary" href="/undergraduate">Undergraduate</a></li>
+                <li class="nav-item"><a class="nav-link active text-primary fw-bold" href="/graduate">Graduate</a></li>
             </ul>
         </div>
     </div>
 </nav>
 
 <!-- Main Content -->
-<div class="container mt-5">
+<main class="container mt-5">
     <div class="card shadow-lg border-0 p-4 text-center" style="background: #f9f9f9; border-radius: 12px;">
-        <h1 class="mb-3 text-primary fw-bold">✨ Curated Universities Just for You! 🏫</h1>
-    
+        <h1 class="mb-3 text-primary fw-bold marquee">
+            <span>✨ Curated Universities Just for You! 🏫</span>
+        </h1>
+        
         <p class="lead text-muted">Find the best universities tailored to your GRE score and GPA.</p>
-    
-        <div class="text-center mt-2"> <a href="/graduate" class="btn btn-sm btn-primary px-3 py-1 shadow-sm" style="border-radius: 6px; transition: all 0.3s ease;">
+        
+        <div class="text-center mt-2">
+            <a href="/graduate" class="btn btn-sm btn-primary px-3 py-1 shadow-sm" style="border-radius: 6px; transition: all 0.3s ease;">
                 <i class="fas fa-search me-1"></i> Search Again
             </a>
         </div>
         
-
-    <!-- Recommendations Table -->
-        <div class="mt-4"> <div class="table-responsive">
-            <table class="table table-hover table-bordered text-center align-middle shadow-sm">
-                <thead class="table-primary">
-                    <tr>
-                        <th>S.No</th>
-                        <th>Business School</th>
-                        <th>University</th>
-                        <th>Location</th>
-                        <th>Course Duration (Months)</th>
-                        <th>Total Course Fee (INR)</th>
-                        <th>Website</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for school in results %}
-                    <tr>
-                        <td class="fw-bold">{{ forloop.counter }}</td>
-                        <td>{{ school.business_school }}</td>
-                        <td>{{ school.university }}</td>
-                        <td>{{ school.location }}</td>
-                        <td>{{ school.course_duration_months }}</td>
-                        <td>₹{{ school.total_course_fees|floatformat:2 }}</td>
-                        <td>
-                            <a href="{{ school.university_website }}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                <i class="fas fa-external-link-alt"></i> Visit
-                            </a>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="7" class="text-muted">No recommendations available</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <!-- Recommendations Table -->
+        <div class="mt-4 fade-in">
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered text-center align-middle shadow-sm">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>S.No</th>
+                            <th>Business School</th>
+                            <th>University</th>
+                            <th>Location</th>
+                            <th>Course Duration (Months)</th>
+                            <th>Total Course Fee (INR)</th>
+                            <th>Student Score</th>
+                            <th>Website</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for school in results %}
+                        <tr>
+                            <td class="fw-bold">{{ forloop.counter }}</td>
+                            <td>{{ school.business_school }}</td>
+                            <td>{{ school.university }}</td>
+                            <td>{{ school.location }}</td>
+                            <td>{{ school.course_duration_months }}</td>
+                            <td>₹{{ school.total_course_fees|floatformat:2 }}</td>
+                            <td>{{ school.student_score|floatformat:2 }}</td>
+                            <td>
+                                <a href="{{ school.university_website }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-external-link-alt"></i> Visit
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-muted">No recommendations available. Please try again with different inputs.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-</div>
+</main>
 
 <!-- Footer -->
 <footer class="footer">
     <p>&copy; 2025 StudyArk University Finder. All rights reserved.</p>
-    <a href="#"><i class="fab fa-facebook"></i></a>
-    <a href="#"><i class="fab fa-twitter"></i></a>
-    <a href="#"><i class="fab fa-linkedin"></i></a>
+    <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+    <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+    <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
 </footer>
 
 <!-- Bootstrap JavaScript -->
