@@ -1,0 +1,11 @@
+2025-03-30 00:08:30,337 - __main__ - INFO - Starting application
+2025-03-30 00:08:30,342 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-03-30 00:08:39,726 - __main__ - INFO - Handling graduate page request
+2025-03-30 00:09:13,294 - __main__ - INFO - Handling graduate algorithm request
+2025-03-30 00:09:13,295 - __main__ - INFO - Calculating student score from request parameters
+2025-03-30 00:09:13,295 - __main__ - INFO - Calculated student score: 4.1355304
+2025-03-30 00:09:13,295 - __main__ - INFO - Building graduate query with student_score: 4.1355304, country: None
+2025-03-30 00:09:13,295 - __main__ - INFO - Making Elasticsearch request to: http://127.0.0.1:9200/business_schools/_search
+2025-03-30 00:09:13,340 - __main__ - INFO - Elasticsearch request successful
+2025-03-30 00:09:13,341 - __main__ - INFO - Returning 30 school recommendations
+2025-03-30 00:11:20,640 - __main__ - INFO - Handling graduate page request
