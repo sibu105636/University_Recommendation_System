@@ -324,6 +324,7 @@ def graduatealgo(request):
                 "university_website": hit["_source"].get("university_website", "#"),
             }
             schools.append(school_data)
+            # print(schools)
             logger.debug(f"Processed school data: {school_data}")
 
         logger.info(f"Returning {len(schools)} school recommendations")

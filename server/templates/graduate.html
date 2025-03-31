@@ -247,6 +247,136 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        /* Ranking styles */
+        .ranking-container {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .ranking-instructions {
+            margin-bottom: 20px;
+        }
+
+        .options-column, .ranks-column {
+            flex: 1;
+            min-width: 0;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+            height: 380px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .options-list, .ranks-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .option-item {
+            background-color: #e3f2fd;
+            border: 1px solid #007bff;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            padding: 8px 12px;
+            margin-bottom: 10px;
+            cursor: grab;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+        }
+
+        .option-item.ranked {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            border-color: #dee2e6;
+            opacity: 0.6;
+            text-decoration: line-through;
+        }
+
+        .option-item.dragging {
+            opacity: 0.8;
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            cursor: grabbing;
+        }
+
+        .option-content {
+            display: flex;
+            align-items: center;
+        }
+
+        .handle {
+            color: #007bff;
+            cursor: grab;
+            font-size: 0.9rem; /* Smaller grip icon */
+        }
+
+        .rank-slot {
+            min-height: 45px;  /* Reduced from 60px */
+            margin-bottom: 8px; /* Reduced from 10px */
+            padding: 8px 12px; /* Reduced padding */
+            border-radius: 6px;
+        }
+
+        .rank-slot.empty {
+            background-color: rgba(255, 255, 255, 0.7);
+            border: 2px dashed #007bff;
+        }
+
+        .rank-slot.filled {
+            background-color: #d4edda;
+            border: 1px solid #28a745;
+        }
+
+        .rank-header {
+            display: flex;
+            align-items: center;
+            gap: 8px; /* Space between number and title */
+        }
+        .rank-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;  /* Reduced from 28px */
+            height: 24px; /* Reduced from 28px */
+            background-color: #007bff;
+            color: white;
+            border-radius: 50%;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .rank-title {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+        .rank-slot.highlight {
+            background-color: #fff3cd;
+            border-color: #ffc107;
+        }
+
+        .column-title {
+            font-weight: 600;
+            color: #007bff;
+            margin-bottom: 15px;
+            padding-bottom: 6px;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+            border-bottom: 2px solid #e3f2fd;
+            display: flex;
+            align-items: center;
+        }
+
+        .rank-values {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -291,7 +421,7 @@
 
             <!-- Progress Bar -->
             <div class="progress">
-                <div class="progress-bar" role="progressbar" style="width: 25%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                <div class="progress-bar" role="progressbar" style="width: 20%;" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
             </div>
 
             <form id="recommendationForm" class="row g-3" action="/graduatealgo" method="GET">
@@ -300,6 +430,7 @@
                     <li class="step-indicator" data-step="2">2</li>
                     <li class="step-indicator" data-step="3">3</li>
                     <li class="step-indicator" data-step="4">4</li>
+                    <li class="step-indicator" data-step="5">5</li>
                 </ul>
 
                 <!-- Step 1 -->
@@ -544,11 +675,135 @@
                         </div>
                         <div class="error" id="coReError">Please select a relevance level.</div>
                     </div>
-                    <div class="col-12 text-start">
-                        <div class="mt-4"> </div><button type="button" class="btn btn-primary prev-step">Previous</button>
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="button" class="btn btn-primary prev-step">Previous</button>
+                            <button type="button" class="btn btn-primary next-step">Next</button>
+                        </div>
                     </div>
-                    <div class="col-12 text-end">
-                        <button type="submit" class="btn btn-primary" id="submitButton">Get Recommendations</button>
+                </div>
+
+                <!-- Step 5 - Drag and Drop Ranking Step -->
+                <div class="step" data-step="5">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-center mb-3"> <!-- Centered container -->
+                            <div class="text-center"> <!-- Centered content -->
+                                <h5 class="mb-2">Rank Your Priorities</h5>
+                                <button type="button" class="btn btn-sm btn-outline-primary me-2" id="toggleInstructions">
+                                    <i class="bi bi-info-circle"></i> Show Instructions
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-primary me-2" id="resetRanking">
+                                    <i class="bi bi-arrow-counterclockwise"></i> Reset
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="ranking-instructions collapse">
+                            <div class="alert alert-info">
+                                <p><strong>How to rank:</strong></p>
+                                <ol>
+                                    <li>Drag options from the left to rank positions on the right</li>
+                                    <li>1 = Most Important, 5 = Least Important</li>
+                                    <li>Grayed out options are already ranked</li>
+                                    <li>Drag an option back to the left to remove its ranking</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-12">
+                        <div class="ranking-container">
+                            <div class="options-column">
+                                <div class="column-title">
+                                    <i class="bi bi-list-ul"></i> Available Options
+                                    <span class="badge bg-primary ms-2" id="remainingCount">5</span>
+                                </div>
+                                <ul class="options-list" id="optionsList">
+                                    <li class="option-item" draggable="true" data-value="university">
+                                        <div class="option-content">
+                                            <i class="bi bi-grip-vertical handle me-2"></i>
+                                            <span>University Reputation</span>
+                                        </div>
+                                    </li>
+                                    <li class="option-item" draggable="true" data-value="cost">
+                                        <div class="option-content">
+                                            <i class="bi bi-grip-vertical handle me-2"></i>
+                                            <span>Program Cost & Aid</span>
+                                        </div>
+                                    </li>
+                                    <li class="option-item" draggable="true" data-value="career">
+                                        <div class="option-content">
+                                            <i class="bi bi-grip-vertical handle me-2"></i>
+                                            <span>Career Outcomes</span>
+                                        </div>
+                                    </li>
+                                    <li class="option-item" draggable="true" data-value="location">
+                                        <div class="option-content">
+                                            <i class="bi bi-grip-vertical handle me-2"></i>
+                                            <span>Campus Facilities</span>
+                                        </div>
+                                    </li>
+                                    <li class="option-item" draggable="true" data-value="alumni">
+                                        <div class="option-content">
+                                            <i class="bi bi-grip-vertical handle me-2"></i>
+                                            <span>Alumni Network</span>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <div class="ranks-column">
+                                <div class="column-title">
+                                    <i class="bi bi-sort-numeric-down"></i> Your Rankings
+                                    <span class="badge bg-success ms-2" id="rankedCount">0</span>
+                                </div>
+                                <ul class="ranks-list" id="ranksList">
+                                    <li class="rank-slot empty" data-rank="1">
+                                        <div class="rank-header">
+                                            <span class="rank-number bg-primary">1</span>
+                                            <small class="rank-title text-muted">(Most Important)</small>
+                                        </div>
+                                    </li>
+                                    <li class="rank-slot empty" data-rank="2">
+                                        <div class="rank-header">
+                                            <span class="rank-number bg-primary">2</span>
+                                        </div>
+                                    </li>
+                                    <li class="rank-slot empty" data-rank="3">
+                                        <div class="rank-header">
+                                            <span class="rank-number bg-primary">3</span>
+                                        </div>
+                                    </li>
+                                    <li class="rank-slot empty" data-rank="4">
+                                        <div class="rank-header">
+                                            <span class="rank-number bg-primary">4</span>
+                                        </div>
+                                    </li>
+                                    <li class="rank-slot empty" data-rank="5">
+                                        <div class="rank-header">
+                                            <span class="rank-number bg-primary">5</span>
+                                            <small class="rank-title text-muted">(Least Important)</small>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- Hidden inputs to store the ranking values -->
+                        <div class="rank-values">
+                            <input type="hidden" name="rank_university" value="">
+                            <input type="hidden" name="rank_cost" value="">
+                            <input type="hidden" name="rank_career" value="">
+                            <input type="hidden" name="rank_location" value="">
+                            <input type="hidden" name="rank_alumni" value="">
+                        </div>
+                    </div>
+                    
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="button" class="btn btn-primary prev-step">Previous</button>
+                            <button type="submit" class="btn btn-primary" id="submitButton">Get Recommendations</button>
+                        </div>
                     </div>
                 </div>
             </form>
@@ -651,7 +906,203 @@
                     }
                 }
             });
+            
+            // Special validation for ranking step
+            if (currentStep === 5) {
+                isValid = validateRanking();
+            }
+            
             return isValid;
+        }
+        
+        function validateRanking() {
+            const rankInputs = document.querySelectorAll('.rank-values input');
+            let isValid = true;
+            
+            rankInputs.forEach(input => {
+                if (!input.value) {
+                    isValid = false;
+                }
+            });
+            
+            if (!isValid) {
+                alert('Please rank all options by dragging them to the ranking slots.');
+            }
+            
+            return isValid;
+        }
+        
+        // Initialize ranking system
+        function initRanking() {
+            const optionsList = document.getElementById('optionsList');
+            const ranksList = document.getElementById('ranksList');
+            const toggleBtn = document.getElementById('toggleInstructions');
+            const resetBtn = document.getElementById('resetRanking');
+            const instructions = document.querySelector('.ranking-instructions');
+            let draggedItem = null;
+
+            // Toggle instructions
+            toggleBtn.addEventListener('click', function() {
+                const collapse = new bootstrap.Collapse(instructions, {
+                    toggle: true
+                });
+                this.innerHTML = instructions.classList.contains('show') ? 
+                    '<i class="bi bi-info-circle"></i> Hide Instructions' : 
+                    '<i class="bi bi-info-circle"></i> Show Instructions';
+            });
+
+            // Reset ranking
+            resetBtn.addEventListener('click', function() {
+                // Clear all rank slots
+                document.querySelectorAll('.rank-slot.filled').forEach(slot => {
+                    slot.innerHTML = `
+                        <div class="rank-header">
+                            <span class="rank-number bg-primary">${slot.dataset.rank}</span>
+                            ${slot.dataset.rank == 1 ? '<small class="rank-title text-muted">(Most Important)</small>' : ''}
+                            ${slot.dataset.rank == 5 ? '<small class="rank-title text-muted">(Least Important)</small>' : ''}
+                        </div>`;
+                    slot.classList.remove('filled');
+                    slot.classList.add('empty');
+                    slot.removeAttribute('data-value');
+                });
+
+                // Clear hidden inputs
+                document.querySelectorAll('.rank-values input').forEach(input => {
+                    input.value = '';
+                });
+
+                // Re-enable all options
+                document.querySelectorAll('.option-item.ranked').forEach(item => {
+                    item.classList.remove('ranked');
+                });
+
+                // Update counters
+                updateCounters();
+            });
+
+            // Update counters
+            function updateCounters() {
+                const rankedCount = document.querySelectorAll('.rank-slot.filled').length;
+                document.getElementById('rankedCount').textContent = rankedCount;
+                document.getElementById('remainingCount').textContent = 5 - rankedCount;
+            }
+
+            // Add event listeners for options
+            optionsList.querySelectorAll('.option-item').forEach(item => {
+                item.addEventListener('dragstart', function(e) {
+                    draggedItem = this;
+                    setTimeout(() => {
+                        this.classList.add('dragging');
+                    }, 0);
+                    e.dataTransfer.setData('text/plain', this.dataset.value);
+                });
+                
+                item.addEventListener('dragend', function() {
+                    this.classList.remove('dragging');
+                });
+            });
+
+            // Add event listeners for rank slots
+            ranksList.querySelectorAll('.rank-slot').forEach(slot => {
+                slot.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    if (!this.classList.contains('filled')) {
+                        this.classList.add('highlight');
+                    }
+                });
+                
+                slot.addEventListener('dragleave', function() {
+                    this.classList.remove('highlight');
+                });
+                
+                slot.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('highlight');
+                    
+                    if (draggedItem && !this.classList.contains('filled')) {
+                        // Remove from any existing rank slot
+                        const existingRank = document.querySelector(`.rank-slot.filled[data-value="${draggedItem.dataset.value}"]`);
+                        if (existingRank) {
+                            existingRank.innerHTML = `
+                                <div class="rank-header">
+                                    <span class="rank-number bg-primary">${existingRank.dataset.rank}</span>
+                                    ${existingRank.dataset.rank == 1 ? '<small class="rank-title text-muted">(Most Important)</small>' : ''}
+                                    ${existingRank.dataset.rank == 5 ? '<small class="rank-title text-muted">(Least Important)</small>' : ''}
+                                </div>`;
+                            existingRank.classList.remove('filled');
+                            existingRank.classList.add('empty');
+                            existingRank.removeAttribute('data-value');
+                            
+                            // Re-enable the option in the left column
+                            const optionItem = document.querySelector(`.option-item[data-value="${draggedItem.dataset.value}"]`);
+                            optionItem.classList.remove('ranked');
+                        }
+                        
+                        // Add to this rank slot
+                        this.innerHTML = `
+                            <div class="rank-header">
+                                <span class="rank-number bg-primary">${this.dataset.rank}</span>
+                                ${this.dataset.rank == 1 ? '<small class="rank-title text-muted">(Most Important)</small>' : ''}
+                                ${this.dataset.rank == 5 ? '<small class="rank-title text-muted">(Least Important)</small>' : ''}
+                            </div>
+                            <div class="rank-content">${draggedItem.querySelector('span').textContent}</div>`;
+                        this.classList.remove('empty');
+                        this.classList.add('filled');
+                        this.setAttribute('data-value', draggedItem.dataset.value);
+                        
+                        // Update the hidden input
+                        const input = document.querySelector(`.rank-values input[name="rank_${draggedItem.dataset.value}"]`);
+                        if (input) {
+                            input.value = this.dataset.rank;
+                        }
+                        
+                        // Gray out the option in the left column
+                        draggedItem.classList.add('ranked');
+                        
+                        // Update counters
+                        updateCounters();
+                    }
+                });
+            });
+            
+            // Allow dropping back to options list
+            optionsList.addEventListener('dragover', function(e) {
+                e.preventDefault();
+            });
+            
+            optionsList.addEventListener('drop', function(e) {
+                e.preventDefault();
+                if (draggedItem) {
+                    // Remove from rank slot if it was ranked
+                    const existingRank = document.querySelector(`.rank-slot.filled[data-value="${draggedItem.dataset.value}"]`);
+                    if (existingRank) {
+                        existingRank.innerHTML = `
+                            <div class="rank-header">
+                                <span class="rank-number bg-primary">${existingRank.dataset.rank}</span>
+                                ${existingRank.dataset.rank == 1 ? '<small class="rank-title text-muted">(Most Important)</small>' : ''}
+                                ${existingRank.dataset.rank == 5 ? '<small class="rank-title text-muted">(Least Important)</small>' : ''}
+                            </div>`;
+                        existingRank.classList.remove('filled');
+                        existingRank.classList.add('empty');
+                        existingRank.removeAttribute('data-value');
+                        
+                        // Clear the hidden input
+                        const input = document.querySelector(`.rank-values input[name="rank_${draggedItem.dataset.value}"]`);
+                        if (input) {
+                            input.value = '';
+                        }
+                        
+                        // Re-enable the option
+                        draggedItem.classList.remove('ranked');
+                        
+                        // Update counters
+                        updateCounters();
+                    }
+                }
+            });
+            
+            // Initialize counters
+            updateCounters();
         }
 
         nextButtons.forEach(button => {
@@ -704,6 +1155,8 @@
             }
         });
 
+        // Initialize the ranking system
+        initRanking();
         updateStep(); // Initialize the form
     </script>
 </body>

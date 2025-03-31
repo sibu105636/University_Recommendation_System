@@ -9,3 +9,98 @@
 2025-03-30 00:09:13,340 - __main__ - INFO - Elasticsearch request successful
 2025-03-30 00:09:13,341 - __main__ - INFO - Returning 30 school recommendations
 2025-03-30 00:11:20,640 - __main__ - INFO - Handling graduate page request
+2025-03-31 23:02:50,933 - __main__ - INFO - Starting application
+2025-03-31 23:02:51,279 - __main__ - INFO - Starting application
+2025-03-31 23:02:51,286 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-03-31 23:02:57,795 - __main__ - INFO - Handling index page request
+2025-03-31 23:03:03,854 - __main__ - INFO - Handling graduate page request
+2025-03-31 23:03:12,095 - __main__ - INFO - Handling undergraduate page request
+2025-03-31 23:03:13,626 - __main__ - INFO - Handling graduate page request
+2025-03-31 23:04:02,424 - __main__ - INFO - Handling graduate algorithm request
+2025-03-31 23:04:02,425 - __main__ - INFO - Calculating student score from request parameters
+2025-03-31 23:04:02,425 - __main__ - INFO - Calculated student score: 3.32685
+2025-03-31 23:04:02,425 - __main__ - INFO - Building graduate query with student_score: 3.32685, country: None
+2025-03-31 23:04:02,425 - __main__ - INFO - Making Elasticsearch request to: http://127.0.0.1:9200/business_schools/_search
+2025-03-31 23:04:02,616 - __main__ - INFO - Elasticsearch request successful
+2025-03-31 23:04:02,618 - __main__ - INFO - Returning 30 school recommendations
+2025-03-31 23:04:33,321 - django.utils.autoreload - INFO - /Users/sibaprasadtripathy/workspace/repos/University_Recommendation_System/server/server.py changed, reloading.
+2025-03-31 23:04:33,925 - __main__ - INFO - Starting application
+2025-03-31 23:04:33,933 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-03-31 23:04:35,049 - django.utils.autoreload - INFO - /Users/sibaprasadtripathy/workspace/repos/University_Recommendation_System/server/server.py changed, reloading.
+2025-03-31 23:04:35,429 - __main__ - INFO - Starting application
+2025-03-31 23:04:35,432 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-03-31 23:04:37,588 - django.utils.autoreload - INFO - /Users/sibaprasadtripathy/workspace/repos/University_Recommendation_System/server/server.py changed, reloading.
+2025-03-31 23:04:38,009 - __main__ - INFO - Starting application
+2025-03-31 23:04:38,012 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-03-31 23:04:39,139 - django.utils.autoreload - INFO - /Users/sibaprasadtripathy/workspace/repos/University_Recommendation_System/server/server.py changed, reloading.
+2025-03-31 23:04:39,528 - __main__ - INFO - Starting application
+2025-03-31 23:04:39,533 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-03-31 23:04:47,715 - django.utils.autoreload - INFO - /Users/sibaprasadtripathy/workspace/repos/University_Recommendation_System/server/server.py changed, reloading.
+2025-03-31 23:04:48,206 - __main__ - INFO - Starting application
+2025-03-31 23:04:48,209 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-03-31 23:04:49,283 - django.utils.autoreload - INFO - /Users/sibaprasadtripathy/workspace/repos/University_Recommendation_System/server/server.py changed, reloading.
+2025-03-31 23:04:49,709 - __main__ - INFO - Starting application
+2025-03-31 23:04:49,713 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-03-31 23:04:50,856 - django.utils.autoreload - INFO - /Users/sibaprasadtripathy/workspace/repos/University_Recommendation_System/server/server.py changed, reloading.
+2025-03-31 23:04:51,300 - __main__ - INFO - Starting application
+2025-03-31 23:04:51,303 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-03-31 23:04:52,434 - django.utils.autoreload - INFO - /Users/sibaprasadtripathy/workspace/repos/University_Recommendation_System/server/server.py changed, reloading.
+2025-03-31 23:04:52,796 - __main__ - INFO - Starting application
+2025-03-31 23:04:52,799 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-03-31 23:07:05,318 - __main__ - INFO - Handling graduate page request
+2025-03-31 23:07:40,561 - __main__ - INFO - Handling graduate algorithm request
+2025-03-31 23:07:40,561 - __main__ - INFO - Calculating student score from request parameters
+2025-03-31 23:07:40,563 - __main__ - INFO - Calculated student score: 3.9160402000000003
+2025-03-31 23:07:40,564 - __main__ - INFO - Building graduate query with student_score: 3.9160402000000003, country: None
+2025-03-31 23:07:40,564 - __main__ - INFO - Making Elasticsearch request to: http://127.0.0.1:9200/business_schools/_search
+2025-03-31 23:07:40,622 - __main__ - INFO - Elasticsearch request successful
+2025-03-31 23:07:40,658 - __main__ - INFO - Returning 30 school recommendations
+2025-03-31 23:39:35,160 - __main__ - INFO - Starting application
+2025-03-31 23:39:35,508 - __main__ - INFO - Starting application
+2025-03-31 23:39:35,513 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-03-31 23:39:42,352 - __main__ - INFO - Handling index page request
+2025-03-31 23:39:43,901 - __main__ - INFO - Handling graduate page request
+2025-03-31 23:40:46,009 - __main__ - INFO - Handling graduate algorithm request
+2025-03-31 23:40:46,010 - __main__ - INFO - Calculating student score from request parameters
+2025-03-31 23:40:46,011 - __main__ - INFO - Calculated student score: 3.8676901999999997
+2025-03-31 23:40:46,011 - __main__ - INFO - Building graduate query with student_score: 3.8676901999999997, country: None
+2025-03-31 23:40:46,011 - __main__ - INFO - Making Elasticsearch request to: http://127.0.0.1:9200/business_schools/_search
+2025-03-31 23:40:46,079 - __main__ - INFO - Elasticsearch request successful
+2025-03-31 23:40:46,110 - __main__ - INFO - Returning 30 school recommendations
+2025-03-31 23:40:48,179 - __main__ - INFO - Handling graduate page request
+2025-03-31 23:52:49,509 - __main__ - INFO - Starting application
+2025-03-31 23:52:49,835 - __main__ - INFO - Starting application
+2025-03-31 23:52:49,838 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-03-31 23:52:55,398 - __main__ - INFO - Handling index page request
+2025-03-31 23:52:56,837 - __main__ - INFO - Handling graduate page request
+2025-04-01 00:04:54,083 - __main__ - INFO - Starting application
+2025-04-01 00:04:54,417 - __main__ - INFO - Starting application
+2025-04-01 00:04:54,420 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-04-01 00:04:59,232 - __main__ - INFO - Handling index page request
+2025-04-01 00:05:00,508 - __main__ - INFO - Handling graduate page request
+2025-04-01 00:15:10,644 - __main__ - INFO - Starting application
+2025-04-01 00:15:10,964 - __main__ - INFO - Starting application
+2025-04-01 00:15:10,968 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-04-01 00:15:14,936 - __main__ - INFO - Handling graduate page request
+2025-04-01 00:15:15,657 - __main__ - INFO - Handling index page request
+2025-04-01 00:15:17,095 - __main__ - INFO - Handling graduate page request
+2025-04-01 00:22:02,774 - __main__ - INFO - Handling graduate page request
+2025-04-01 00:22:06,000 - __main__ - INFO - Handling index page request
+2025-04-01 00:22:38,196 - __main__ - INFO - Handling graduate page request
+2025-04-01 00:32:10,459 - __main__ - INFO - Starting application
+2025-04-01 00:32:10,792 - __main__ - INFO - Starting application
+2025-04-01 00:32:10,800 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-04-01 00:32:15,281 - __main__ - INFO - Handling index page request
+2025-04-01 00:32:17,075 - __main__ - INFO - Handling graduate page request
+2025-04-01 00:35:54,461 - __main__ - INFO - Starting application
+2025-04-01 00:35:54,827 - __main__ - INFO - Starting application
+2025-04-01 00:35:54,830 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-04-01 00:35:59,330 - __main__ - INFO - Handling graduate page request
+2025-04-01 00:37:05,604 - __main__ - INFO - Handling graduate algorithm request
+2025-04-01 00:37:05,605 - __main__ - INFO - Calculating student score from request parameters
+2025-04-01 00:37:05,606 - __main__ - INFO - Calculated student score: 4.1564803999999995
+2025-04-01 00:37:05,606 - __main__ - INFO - Building graduate query with student_score: 4.1564803999999995, country: None
+2025-04-01 00:37:05,606 - __main__ - INFO - Making Elasticsearch request to: http://127.0.0.1:9200/business_schools/_search
+2025-04-01 00:37:05,667 - __main__ - INFO - Elasticsearch request successful
+2025-04-01 00:37:05,704 - __main__ - INFO - Returning 30 school recommendations
+2025-04-01 00:37:10,238 - __main__ - INFO - Handling graduate page request
