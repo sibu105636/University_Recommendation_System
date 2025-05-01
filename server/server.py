@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 # --------------------------
 class Config:
     ES_HOST = "http://127.0.0.1:9200"
-    ES_INDEX = "business_schools"
+    ES_INDEX = "business_school_updated"
     
     @staticmethod
     def generate_secret_key():
@@ -60,45 +60,53 @@ class Config:
 # --------------------------
 class ElasticsearchService:
     @staticmethod
-    def build_graduate_query(student_score: float, country: Optional[str] = None) -> Dict:
-        logger.info(f"Building graduate query with student_score: {student_score}, country: {country}")
-        query = {
-            "size": 30,  # Return top 30 closest neighbors
+    def build_graduate_queries(student_score: float, country: Optional[str] = None) -> Tuple[Dict, Dict]:
+        logger.info(f"Building graduate queries with student_score: {student_score}, country: {country}")
+
+        # Build country filter if needed
+        country_filter = []
+        if country and country != "None":
+            country_filter.append({"term": {"location.keyword": country}})
+            logger.debug(f"Added country filter: {country}")
+
+        # Top 20 universities (score > student_score, smallest bigger ones first)
+        top_query = {
+            "size": 20,
             "query": {
                 "bool": {
-                    "filter": [],  # Explicitly define filter list to prevent KeyError
-                    "must": [
-                        {
-                            "script_score": {
-                                "query": {"match_all": {}},
-                                "script": {
-                                    "source": """
-                                        if (doc.containsKey('student__score') && doc['student__score'].size() > 0) {
-                                            return 1 / (1 + Math.abs(params.student_score - doc['student__score'].value));
-                                        } else {
-                                            return 0;
-                                        }
-                                    """,
-                                    "params": {"student_score": float(student_score)}
-                                }
-                            }
-                        }
-                    ]
+                    "filter": [
+                        {"range": {"student__score": {"gt": student_score}}}
+                    ] + country_filter
                 }
             },
-            "sort": [{"_score": "desc"}],  # Higher score = closer neighbor
+            "sort": [{"student__score": {"order": "asc"}}],
             "collapse": {
-                "field": "business_school.keyword"  # Ensures only one document per business school
+                "field": "business_school.keyword"
             }
         }
 
-        # Apply country filter if provided
-        if country and country != "None":
-            query["query"]["bool"]["filter"].append({"term": {"location.keyword": country}})
-            logger.debug(f"Added country filter for: {country}")
+        # Bottom 10 universities (score < student_score, biggest smaller ones first)
+        bottom_query = {
+            "size": 10,
+            "query": {
+                "bool": {
+                    "filter": [
+                        {"range": {"student__score": {"lt": student_score}}}
+                    ] + country_filter
+                }
+            },
+            "sort": [{"student__score": {"order": "desc"}}],
+            "collapse": {
+                "field": "business_school.keyword"
+            }
+        }
 
-        logger.debug(f"Final query: {query}")
-        return query
+        logger.debug(f"Top Query: {top_query}")
+        logger.debug(f"Bottom Query: {bottom_query}")
+        return top_query, bottom_query
+
+
+
 
     @staticmethod
     def search(query: Dict) -> Dict:
@@ -134,6 +142,13 @@ class StudentScorer:
         'college_ranking': 0.0979,
         'course_relevance': 0.0551
     }
+    PREFERENCE_MAP = {
+        1: 1.00,
+        2: 1.33,
+        3: 1.77,
+        4: 2.36,
+        5: 3.12
+    }
 
     @staticmethod
     def get_float(value, default=0) -> float:
@@ -163,6 +178,50 @@ class StudentScorer:
         score = sum(value * cls.WEIGHTS[key] for key, value in params.items())
         logger.info(f"Calculated student score: {score}")
         return score
+    
+    @classmethod
+    def preference_score(cls, request) -> dict:
+        logger.info("Calculating preference scores from request parameters")
+
+        rank_params = {
+            'rank_university': request.GET.get('rank_university'),
+            'rank_cost': request.GET.get('rank_cost'),
+            'rank_employability': request.GET.get('rank_employability'),
+            'rank_roi': request.GET.get('rank_roi'),
+            'rank_workvisa': request.GET.get('rank_workvisa'),
+        }
+
+        # Step 1: Extract weights from ranks
+        weights = {}
+        for key, value in rank_params.items():
+            try:
+                rank = int(value)
+                weights[key] = cls.PREFERENCE_MAP.get(rank, 0)
+            except (ValueError, TypeError):
+                weights[key] = 0
+
+        total_weight = sum(weights.values())
+        if total_weight == 0:
+            logger.warning("Total weight is zero; assigning equal weights.")
+            return {key: round(1 / len(weights), 2) for key in weights}
+
+        # Step 2: Normalize and round to 2 decimals
+        normalized = {
+            key: round(value / total_weight, 2)
+            for key, value in weights.items()
+        }
+
+        # Step 3: Adjust the last value to make total = 1.0
+        keys = list(normalized.keys())
+        total = sum(normalized.values())
+
+        # if total != 1.0:
+        #     diff = round(1.0 - total, 2)
+        #     last_key = keys[-1]
+        #     normalized[last_key] = round(normalized[last_key] + diff, 2)
+
+        logger.info(f"Final normalized weights: {normalized}")
+        return normalized
 
 # --------------------------
 # KNN Algorithm Module
@@ -219,51 +278,42 @@ def undergraduatealgo(request):
 
 def graduatealgo(request):
     logger.info("Handling graduate algorithm request")
+    print(request.GET.get("rank_employability", "None"))
+    print(request.GET.get("rank_cost", "None"))
     try:
         student_score = StudentScorer.calculate_score(request)
+        preference_score = StudentScorer.preference_score(request)
         country = request.GET.get("country", "None")
         logger.debug(f"Request parameters - student_score: {student_score}, country: {country}")
+        logger.debug(f"Preference score: {preference_score}")
 
-        query = ElasticsearchService.build_graduate_query(student_score, country)
-        response = ElasticsearchService.search(query)
+        top_query, bottom_query = ElasticsearchService.build_graduate_queries(student_score, country)
 
-        if not response:
-            logger.error("No response from Elasticsearch")
-            return HttpResponse("Error fetching data from Elasticsearch", status=500)
+        top_response = ElasticsearchService.search(top_query)
+        bottom_response = ElasticsearchService.search(bottom_query)
 
-        # Extracting values
-        fees = [
-            int(hit["_source"]["total_course_fees"])
-            for hit in response["hits"]["hits"]
-            if hit["_source"].get("total_course_fees")
-        ]
-        rankings = [
-            int(hit["_source"]["study_bridge_ranking"])
-            for hit in response["hits"]["hits"]
-            if hit["_source"].get("study_bridge_ranking")
-        ]
-        roi_scores = [
-            float(hit["_source"]["roi_score"])
-            for hit in response["hits"]["hits"]
-            if hit["_source"].get("roi_score")
-        ]
-        salaries = [
-            int(hit["_source"]["salary"])
-            for hit in response["hits"]["hits"]
-            if hit["_source"].get("salary")
-        ]
-        employability = [
-            float(hit["_source"]["employability"])
-            for hit in response["hits"]["hits"]
-            if hit["_source"].get("employability")
-        ]
-        work_visa = [
-            int(hit["_source"]["work_visa_opportunities"])
-            for hit in response["hits"]["hits"]
-            if hit["_source"].get("work_visa_opportunities")
-        ]
+        top_hits = top_response["hits"]["hits"] if top_response and "hits" in top_response else []
+        print("Top hits:", top_hits)
+        bottom_hits = bottom_response["hits"]["hits"] if bottom_response and "hits" in bottom_response else []
+        print("Bottom hits:", bottom_hits)
 
-        # Calculating averages
+        logger.info(f"Top results received: {len(top_hits)}, Bottom results received: {len(bottom_hits)}")
+
+        if len(top_hits) < 20:
+            logger.warning(f"Expected 20 top universities but got only {len(top_hits)}.")
+        if len(bottom_hits) < 10:
+            logger.warning(f"Expected 10 bottom universities but got only {len(bottom_hits)}.")
+
+        combined_hits = top_hits + bottom_hits
+
+        # Extract data
+        fees = [int(hit["_source"]["total_course_fees"]) for hit in combined_hits if hit["_source"].get("total_course_fees")]
+        rankings = [int(hit["_source"]["study_bridge_ranking"]) for hit in combined_hits if hit["_source"].get("study_bridge_ranking")]
+        roi_scores = [float(hit["_source"]["roi_score"]) for hit in combined_hits if hit["_source"].get("roi_score")]
+        salaries = [int(hit["_source"]["salary"]) for hit in combined_hits if hit["_source"].get("salary")]
+        employability = [float(hit["_source"]["employability"]) for hit in combined_hits if hit["_source"].get("employability")]
+        work_visa = [int(hit["_source"]["work_visa_opportunities"]) for hit in combined_hits if hit["_source"].get("work_visa_opportunities")]
+
         average_fee = sum(fees) / len(fees) if fees else 0
         average_ranking = sum(rankings) / len(rankings) if rankings else 0
         average_roi_score = sum(roi_scores) / len(roi_scores) if roi_scores else 0
@@ -272,63 +322,53 @@ def graduatealgo(request):
         average_work_visa = sum(work_visa) / len(work_visa) if work_visa else 0
 
         logger.debug(f"Calculated averages - Fee: {average_fee:.2f}, Ranking: {average_ranking:.2f}, "
-                    f"ROI: {average_roi_score:.2f}, Salary: {average_salary:.2f}, "
-                    f"Employability: {average_employability:.2f}, Work Visa: {average_work_visa:.2f}")
+                     f"ROI: {average_roi_score:.2f}, Salary: {average_salary:.2f}, "
+                     f"Employability: {average_employability:.2f}, Work Visa: {average_work_visa:.2f}")
 
         schools = []
-        for hit in response["hits"]["hits"]:
-            total_course_fees = int(hit["_source"].get("total_course_fees", 0))
-            ranking = int(hit["_source"].get("study_bridge_ranking", 0))
-            roi_score = float(hit["_source"].get("roi_score", 0))
-            salary = int(hit["_source"].get("salary", 0))
-            employability_score = float(hit["_source"].get("employability", 0))
-            work_visa_score = int(hit["_source"].get("work_visa_opportunities", 0))
+        for hit in combined_hits:
+            source = hit["_source"]
+            total_course_fees = int(source.get("total_course_fees", 0))
+            ranking = int(source.get("study_bridge_ranking", 0))
+            roi_score = float(source.get("roi_score", 0))
+            salary = int(source.get("salary", 0))
+            employability_score = float(source.get("employability", 0))
+            work_visa_score = int(source.get("work_visa_opportunities", 0))
 
-            # Calculate weightage percentages
-            weighage_percent_course_fee = (
-                round(average_fee / total_course_fees, 2) if average_fee else 0
-            )
-            weighage_percent_ranking = (
-                round(average_ranking / ranking, 2) if average_ranking else 0
-            )
-            weighage_percent_roi_score = (
-                round(roi_score / average_roi_score, 2) if average_roi_score else 0
-            )
-            weighage_percent_salary = (
-                round(salary / average_salary, 2) if average_salary else 0
-            )
-            weighage_percent_employability = (
-                round(employability_score / average_employability, 2)
-                if average_employability
-                else 0
-            )
-            weighage_percent_work_visa = (
-                round(work_visa_score / average_work_visa, 2) if average_work_visa else 0
+            weighage_percent_course_fee = round(average_fee / total_course_fees, 2) if average_fee else 0
+            weighage_percent_ranking = round(average_ranking / ranking, 2) if average_ranking else 0
+            weighage_percent_roi_score = round(roi_score / average_roi_score, 2) if average_roi_score else 0
+            weighage_percent_salary = round(salary / average_salary, 2) if average_salary else 0
+            weighage_percent_employability = round(employability_score / average_employability, 2) if average_employability else 0
+            weighage_percent_work_visa = round(work_visa_score / average_work_visa, 2) if average_work_visa else 0
+
+            aggregated_weighage_score = (
+                (weighage_percent_course_fee * preference_score["rank_cost"])
+                + (weighage_percent_ranking * preference_score["rank_university"])
+                + (weighage_percent_roi_score * preference_score["rank_roi"])
+                + (weighage_percent_employability * preference_score["rank_employability"])
+                + (weighage_percent_work_visa * preference_score["rank_workvisa"])
             )
 
-            school_data = {
-                "business_school": hit["_source"].get("business_school", "N/A"),
-                "university": hit["_source"].get("university", "N/A"),
-                "location": hit["_source"].get("location", "N/A"),
-                "course_duration_months": hit["_source"].get(
-                    "course_duration_(months)", "N/A"
-                ),
+            logger.debug(f"Aggregated score for {source.get('business_school', 'N/A')}: {aggregated_weighage_score:.2f}")
+
+            schools.append({
+                "business_school": source.get("business_school", "N/A"),
+                "university": source.get("university", "N/A"),
+                "location": source.get("location", "N/A"),
+                "course_duration_months": source.get("course_duration_(months)", "N/A"),
                 "total_course_fees": total_course_fees,
-                "weighage_percent_course_fee": weighage_percent_course_fee,
-                "weighage_percent_ranking": weighage_percent_ranking,
-                "weighage_percent_roi_score": weighage_percent_roi_score,
-                "weighage_percent_salary": weighage_percent_salary,
-                "weighage_percent_employability": weighage_percent_employability,
-                "weighage_percent_work_visa": weighage_percent_work_visa,
-                "student_score": hit["_source"].get("student__score", "N/A"),
-                "university_website": hit["_source"].get("university_website", "#"),
-            }
-            schools.append(school_data)
-            # print(schools)
-            logger.debug(f"Processed school data: {school_data}")
+                "student_score": source.get("student__score", "N/A"),
+                "university_website": source.get("university_website", "#"),
+                "aggregated_weighage_score": round(aggregated_weighage_score, 2)
+            })
 
-        logger.info(f"Returning {len(schools)} school recommendations")
-        return render(request, "recommendation.html", {"results": schools})
+        # Sort and pick top 8 schools based on the aggregated_weighage_score
+        top_schools = sorted(schools, key=lambda x: x["aggregated_weighage_score"], reverse=True)[:8]
+
+        logger.info(f"Returning top {len(top_schools)} school recommendations based on aggregated score")
+        return render(request, "recommendation.html", {"results": top_schools}) 
+
     except Exception as e:
         logger.error(f"Error in graduatealgo: {str(e)}", exc_info=True)
         return HttpResponse("An error occurred while processing your request", status=500)

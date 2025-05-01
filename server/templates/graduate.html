@@ -377,6 +377,23 @@
         .rank-values {
             display: none;
         }
+        .rank-selected {
+        background-color: #d0ebff !important;
+    }
+
+        .rank-selected .rank-title {
+            color: #0d6efd !important;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .ranking-container {
+                flex-direction: column;
+            }
+            .options-column, .ranks-column {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -431,6 +448,7 @@
                     <li class="step-indicator" data-step="3">3</li>
                     <li class="step-indicator" data-step="4">4</li>
                     <li class="step-indicator" data-step="5">5</li>
+                    <li class="step-indicator" data-step="5">6</li>
                 </ul>
 
                 <!-- Step 1 -->
@@ -467,13 +485,21 @@
                                 <option value="Germany">🇩🇪 Germany</option>
                                 <option value="France">🇫🇷 France</option>
                                 <option value="Singapore">🇸🇬 Singapore</option>
+                                <option value="China">🇨🇳 China</option>
+                                <option value="Japan">🇯🇵 Japan</option>
+                                <option value="United Arab Emirates">🇦🇪 United Arab Emirates</option>
+                                <option value="Ireland">🇮🇪 Ireland</option>
                                 <option value="India">🇮🇳 India</option>
-                                <option value="Other">🌐 Other Country</option>
-                            </select>
+                            </select>                            
                         </div>
                         <div class="error" id="countryError">Please select a target country.</div>
                     </div>
-                <!-- <div class="step active" data-step="1"> -->
+                    <div class="col-12 text-end">
+                        <button type="button" class="btn btn-primary next-step">Next</button>
+                    </div>
+                <!-- Step 2 -->
+                </div>
+                <div class="step" data-step="2">
                     <div class="col-md-6">
                         <label for="workEx" class="form-label fw-bold text-secondary">
                             <i class="bi bi-briefcase-fill"></i> Years of Work Experience
@@ -508,12 +534,15 @@
                         <div class="error" id="DesgError">Please select a designation.</div>
                     </div>
                     <div class="col-12 text-end">
-                        <button type="button" class="btn btn-primary next-step">Next</button>
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="button" class="btn btn-primary prev-step">Previous</button>
+                            <button type="button" class="btn btn-primary next-step">Next</button>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Step 2 -->
-                <div class="step" data-step="2">
+                <!-- Step 3 -->
+                <div class="step" data-step="3">
                     <div class="col-md-6">
                         <label for="comTy" class="form-label fw-bold text-secondary">
                             <i class="bi bi-building"></i> Company Type
@@ -580,23 +609,8 @@
                     </div>
                 </div>
 
-                <!-- Step 3 -->
-                <div class="step" data-step="3">
-                    <div class="col-md-6">
-                        <label for="gmat" class="form-label fw-bold text-secondary">
-                            <i class="bi bi-bar-chart-line"></i> GMAT Score
-                        </label>
-                        <div class="input-group shadow-sm">
-                            <span class="input-group-text bg-primary text-white rounded-start">
-                                <i class="bi bi-graph-up"></i>
-                            </span>
-                            <input type="number" id="gmat" name="gmat"
-                                   class="form-select border-primary shadow-sm rounded-end"
-                                   placeholder="Enter GMAT score (200 - 800)" min="200" max="800" required>
-                        </div>
-                        <div class="error" id="gmatError">Please enter a valid GMAT score (200-800).</div>
-                    </div>
-
+                <!-- Step 4 -->
+                <div class="step" data-step="4">
                     <div class="col-md-6">
                         <label for="cgpa" class="form-label fw-bold text-secondary">
                             <i class="bi bi-award"></i> CGPA
@@ -609,12 +623,27 @@
                                    class="form-select border-primary shadow-sm rounded-end"
                                    placeholder="Enter CGPA (0 - 10)" step="0.1" min="0" max="10" required>
                         </div>
-                        <div class="error" id="cgpaError">Please enter a valid CGPA (0-10).</div>
+                        <div class="error" id="cgpaError">Please enter your CGPA (0-10).</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="gmat" class="form-label fw-bold text-secondary">
+                            <i class="bi bi-bar-chart-line"></i> GMAT/GRE(Actual/Expected) Score
+                        </label>
+                        <div class="input-group shadow-sm">
+                            <span class="input-group-text bg-primary text-white rounded-start">
+                                <i class="bi bi-graph-up"></i>
+                            </span>
+                            <input type="number" id="gmat" name="gmat"
+                                   class="form-select border-primary shadow-sm rounded-end"
+                                   placeholder="Please enter GMAT/GRE score (200-800)" min="200" max="800" required>
+                        </div>
+                        <div class="error" id="gmatError">Please enter GMAT/GRE score (200-800).</div>
                     </div>
 
                     <div class="col-md-6">
                         <label for="ielts" class="form-label fw-bold text-secondary">
-                            <i class="bi bi-translate"></i> IELTS Score
+                            <i class="bi bi-translate"></i> IELTS/TOEFL(Actual/Expected) Score
                         </label>
                         <div class="input-group shadow-sm">
                             <span class="input-group-text bg-primary text-white rounded-start">
@@ -622,9 +651,9 @@
                             </span>
                             <input type="number" id="ielts" name="ielts"
                                    class="form-select border-primary shadow-sm rounded-end"
-                                   placeholder="Enter IELTS Score (0 - 9)" step="0.1" min="0" max="9" required>
+                                   placeholder="Please enter IELTS/TOEFL score (0-9)" step="0.1" min="0" max="9" required>
                         </div>
-                        <div class="error" id="ieltsError">Please enter a valid IELTS score (0-9).</div>
+                        <div class="error" id="ieltsError">Please enter IELTS/TOEFL score (0-9).</div>
                     </div>
                     <div class="col-12">
                         <div class="d-flex justify-content-between mt-4">
@@ -634,8 +663,8 @@
                     </div>
                 </div>
 
-                <!-- Step 4 -->
-                <div class="step" data-step="4">
+                <!-- Step 5 -->
+                <div class="step" data-step="5">
                     <div class="col-md-6">
                         <label for="colRnk" class="form-label fw-bold text-secondary">
                             <i class="bi bi-mortarboard"></i> College/Institute Ranking
@@ -682,130 +711,91 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Step 5 - Drag and Drop Ranking Step -->
-                <div class="step" data-step="5">
-                    <div class="col-12">
-                        <div class="d-flex justify-content-center mb-3"> <!-- Centered container -->
-                            <div class="text-center"> <!-- Centered content -->
-                                <h5 class="mb-2">Rank Your Priorities</h5>
-                                <button type="button" class="btn btn-sm btn-outline-primary me-2" id="toggleInstructions">
-                                    <i class="bi bi-info-circle"></i> Show Instructions
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-primary me-2" id="resetRanking">
-                                    <i class="bi bi-arrow-counterclockwise"></i> Reset
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div class="ranking-instructions collapse">
-                            <div class="alert alert-info">
-                                <p><strong>How to rank:</strong></p>
-                                <ol>
-                                    <li>Drag options from the left to rank positions on the right</li>
-                                    <li>1 = Most Important, 5 = Least Important</li>
-                                    <li>Grayed out options are already ranked</li>
-                                    <li>Drag an option back to the left to remove its ranking</li>
-                                </ol>
-                            </div>
-                        </div>
+                <!-- Step 6 - Rank Priorities -->
+                <div class="step py-5 px-4 bg-white rounded-4 shadow-lg" id="step-6" data-step="6" role="tabpanel" aria-labelledby="step-indicator-6">
+                    <div class="container">
+                    <div class="text-center mb-5">
+                        <h4 class="fw-bold text-primary d-flex justify-content-center align-items-center gap-2">
+                        <i class="bi bi-stars display-6 text-warning"></i> 
+                        <span>Rank Your Priorities</span>
+                        </h4>
+                        <p class="text-muted mt-2 fs-5">
+                        Please rate each factor from 
+                        <span class="fw-bold text-danger">1 (Least Important)</span> 
+                        to 
+                        <span class="fw-bold text-success">5 (Most Important)</span>
+                        </p>
                     </div>
-                    
-                    <div class="col-12">
-                        <div class="ranking-container">
-                            <div class="options-column">
-                                <div class="column-title">
-                                    <i class="bi bi-list-ul"></i> Available Options
-                                    <span class="badge bg-primary ms-2" id="remainingCount">5</span>
-                                </div>
-                                <ul class="options-list" id="optionsList">
-                                    <li class="option-item" draggable="true" data-value="university">
-                                        <div class="option-content">
-                                            <i class="bi bi-grip-vertical handle me-2"></i>
-                                            <span>University Reputation</span>
-                                        </div>
-                                    </li>
-                                    <li class="option-item" draggable="true" data-value="cost">
-                                        <div class="option-content">
-                                            <i class="bi bi-grip-vertical handle me-2"></i>
-                                            <span>Program Cost & Aid</span>
-                                        </div>
-                                    </li>
-                                    <li class="option-item" draggable="true" data-value="career">
-                                        <div class="option-content">
-                                            <i class="bi bi-grip-vertical handle me-2"></i>
-                                            <span>Career Outcomes</span>
-                                        </div>
-                                    </li>
-                                    <li class="option-item" draggable="true" data-value="location">
-                                        <div class="option-content">
-                                            <i class="bi bi-grip-vertical handle me-2"></i>
-                                            <span>Campus Facilities</span>
-                                        </div>
-                                    </li>
-                                    <li class="option-item" draggable="true" data-value="alumni">
-                                        <div class="option-content">
-                                            <i class="bi bi-grip-vertical handle me-2"></i>
-                                            <span>Alumni Network</span>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </div>
-                            
-                            <div class="ranks-column">
-                                <div class="column-title">
-                                    <i class="bi bi-sort-numeric-down"></i> Your Rankings
-                                    <span class="badge bg-success ms-2" id="rankedCount">0</span>
-                                </div>
-                                <ul class="ranks-list" id="ranksList">
-                                    <li class="rank-slot empty" data-rank="1">
-                                        <div class="rank-header">
-                                            <span class="rank-number bg-primary">1</span>
-                                            <small class="rank-title text-muted">(Most Important)</small>
-                                        </div>
-                                    </li>
-                                    <li class="rank-slot empty" data-rank="2">
-                                        <div class="rank-header">
-                                            <span class="rank-number bg-primary">2</span>
-                                        </div>
-                                    </li>
-                                    <li class="rank-slot empty" data-rank="3">
-                                        <div class="rank-header">
-                                            <span class="rank-number bg-primary">3</span>
-                                        </div>
-                                    </li>
-                                    <li class="rank-slot empty" data-rank="4">
-                                        <div class="rank-header">
-                                            <span class="rank-number bg-primary">4</span>
-                                        </div>
-                                    </li>
-                                    <li class="rank-slot empty" data-rank="5">
-                                        <div class="rank-header">
-                                            <span class="rank-number bg-primary">5</span>
-                                            <small class="rank-title text-muted">(Least Important)</small>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                        
-                        <!-- Hidden inputs to store the ranking values -->
-                        <div class="rank-values">
-                            <input type="hidden" name="rank_university" value="">
-                            <input type="hidden" name="rank_cost" value="">
-                            <input type="hidden" name="rank_career" value="">
-                            <input type="hidden" name="rank_location" value="">
-                            <input type="hidden" name="rank_alumni" value="">
-                        </div>
+                
+                    <div class="table-responsive rounded-4 overflow-hidden">
+                        <table class="table table-hover table-bordered align-middle text-center shadow-sm">
+                        <thead class="bg-gradient bg-primary text-white">
+                            <tr>
+                            <th class="text-start">🎯 Priority</th>
+                            <th>1</th>
+                            <th>2</th>
+                            <th>3</th>
+                            <th>4</th>
+                            <th>5</th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-light">
+                            <tr>
+                            <td class="text-start fw-semibold">🏛️ University Ranking</td>
+                            <td><input class="form-check-input" type="radio" name="rank_university" value="1" required></td>
+                            <td><input class="form-check-input" type="radio" name="rank_university" value="2"></td>
+                            <td><input class="form-check-input" type="radio" name="rank_university" value="3"></td>
+                            <td><input class="form-check-input" type="radio" name="rank_university" value="4"></td>
+                            <td><input class="form-check-input" type="radio" name="rank_university" value="5"></td>
+                            </tr>
+                            <tr>
+                            <td class="text-start fw-semibold">💰 Program Cost</td>
+                            <td><input class="form-check-input" type="radio" name="rank_cost" value="1" required></td>
+                            <td><input class="form-check-input" type="radio" name="rank_cost" value="2"></td>
+                            <td><input class="form-check-input" type="radio" name="rank_cost" value="3"></td>
+                            <td><input class="form-check-input" type="radio" name="rank_cost" value="4"></td>
+                            <td><input class="form-check-input" type="radio" name="rank_cost" value="5"></td>
+                            </tr>
+                            <tr>
+                            <td class="text-start fw-semibold">📈 Employability</td>
+                            <td><input class="form-check-input" type="radio" name="rank_employability" value="1" required></td>
+                            <td><input class="form-check-input" type="radio" name="rank_employability" value="2"></td>
+                            <td><input class="form-check-input" type="radio" name="rank_employability" value="3"></td>
+                            <td><input class="form-check-input" type="radio" name="rank_employability" value="4"></td>
+                            <td><input class="form-check-input" type="radio" name="rank_employability" value="5"></td>
+                            </tr>
+                            <tr>
+                            <td class="text-start fw-semibold">📊 ROI (Return on Investment)</td>
+                            <td><input class="form-check-input" type="radio" name="rank_roi" value="1" required></td>
+                            <td><input class="form-check-input" type="radio" name="rank_roi" value="2"></td>
+                            <td><input class="form-check-input" type="radio" name="rank_roi" value="3"></td>
+                            <td><input class="form-check-input" type="radio" name="rank_roi" value="4"></td>
+                            <td><input class="form-check-input" type="radio" name="rank_roi" value="5"></td>
+                            </tr>
+                            <tr>
+                            <td class="text-start fw-semibold">🛂 Work Visa Opportunity</td>
+                            <td><input class="form-check-input" type="radio" name="rank_workvisa" value="1" required></td>
+                            <td><input class="form-check-input" type="radio" name="rank_workvisa" value="2"></td>
+                            <td><input class="form-check-input" type="radio" name="rank_workvisa" value="3"></td>
+                            <td><input class="form-check-input" type="radio" name="rank_workvisa" value="4"></td>
+                            <td><input class="form-check-input" type="radio" name="rank_workvisa" value="5"></td>
+                            </tr>
+                        </tbody>
+                        </table>
                     </div>
-                    
+                    </div>
+  
+                
+                    <!-- Navigation Buttons -->
                     <div class="col-12">
                         <div class="d-flex justify-content-between mt-4">
                             <button type="button" class="btn btn-primary prev-step">Previous</button>
-                            <button type="submit" class="btn btn-primary" id="submitButton">Get Recommendations</button>
+                            <button type="submit" class="btn btn-primary px-4 py-2" id="submitButton">
+                                Get Recommendations <i class="bi bi-stars ms-1"></i>
+                            </button>
                         </div>
                     </div>
-                </div>
+                </div>                            
             </form>
         </div>
     </div>
@@ -825,6 +815,19 @@
             const noRadio = document.getElementById('hasCountryPrefNo');
             const countrySelection = document.getElementById('countrySelection');
             const countrySelect = document.getElementById('country');
+            const table = document.querySelector('table');
+
+             // For each radio input
+            table.querySelectorAll('input[type="radio"]').forEach(radio => {
+                radio.addEventListener('change', function () {
+                    // Remove previous highlight from this row
+                    const row = this.closest('tr');
+                    row.querySelectorAll('td').forEach(td => td.classList.remove('rank-selected'));
+
+                    // Add highlight to the selected option
+                    this.closest('td').classList.add('rank-selected');
+                });
+            });
 
             // Toggle country selection visibility
             function toggleCountrySelection() {
@@ -908,7 +911,7 @@
             });
             
             // Special validation for ranking step
-            if (currentStep === 5) {
+            if (currentStep === 6) {
                 isValid = validateRanking();
             }
             

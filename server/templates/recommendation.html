@@ -194,6 +194,7 @@
                             <th>Course Duration (Months)</th>
                             <th>Total Course Fee (INR)</th>
                             <th>Student Score</th>
+                            <th>Aggregated Score</th>
                             <th>Website</th>
                         </tr>
                     </thead>
@@ -207,6 +208,7 @@
                             <td>{{ school.course_duration_months }}</td>
                             <td>₹{{ school.total_course_fees|floatformat:2 }}</td>
                             <td>{{ school.student_score|floatformat:2 }}</td>
+                            <td>{{ school.aggregated_weighage_score|floatformat:2 }}</td>
                             <td>
                                 <a href="{{ school.university_website }}" target="_blank" class="btn btn-sm btn-outline-primary">
                                     <i class="fas fa-external-link-alt"></i> Visit
